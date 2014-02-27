@@ -1,5 +1,6 @@
 # Django settings for FTknowledge project.
-
+import os
+os.environ['LANG'] = 'en_US.UTF-8'
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -69,6 +70,7 @@ STATIC_URL = '/static/'
 # Additional locations of static files
 STATICFILES_DIRS = (
     ("upload", os.path.join(STATIC_ROOT,'upload')),
+    ("swf", os.path.join(STATIC_ROOT,'swf')),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

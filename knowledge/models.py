@@ -1,3 +1,4 @@
+#coding=utf-8
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -6,6 +7,9 @@ from django.db import models
 class Group(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name=u'服务行业', help_text=u'会计服务行业')
     is_active = models.BooleanField(default=True, verbose_name=u'可用')
+
+    def __unicode__(self):
+        return u'%s'%(self.name,)
 
 
 class TaxKind(models.Model):
@@ -20,31 +24,54 @@ class TaxTicket(models.Model):
     taxkind = models.ForeignKey(TaxKind)
 
 
-class ZZBB(models.Model):
-    taxticket = models.ForeignKey(TaxTicket)
-    glzzsbbzb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联增值税报表主表')
-    glzzsbbzby = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联增值税报表主表一')
-    glzzsbbzbe = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联增值税报表主表二')
-    gdzcdk = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'固定资产抵扣')
-    is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
+class KJKM(models.Model):
+    name = models.CharField(max_length=30,db_index=True,verbose_name=u'会计科目名称')
 
+class KJKMTicket(models.Model):
+    kjkm = models.ForeignKey(KJKM,verbose_name=u'会计科目')
+    tickets = models.ForeignKey(TaxTicket,verbose_name=u'关联票据')
 
-class CZZS(models.Model):
-    taxticket = models.ForeignKey(TaxTicket)
-    glqysdszb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联企业所得税主表')
-    glssyhmxb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联税收优惠明细表')
-    glsdsylzsdbb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联所得税与流转税对比表')
-    is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
+class BB(models.Model):
+    name = models.CharField(max_length=20,db_index=True,verbose_name=u'报表名称')
 
+class BBField(models.Model):
+    bb = models.ForeignKey(BB,verbose_name=u'隶属报表')
+    fieldname = models.CharField(max_length=20,verbose_name=u'字段名称')
 
-class CWBB(models.Model):
-    taxticket = models.ForeignKey(TaxTicket)
-    glcwbblrb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联财务报表利润表')
-    is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
+class BBFieldValue(models.Model):
+    ticket = models.ForeignKey(TaxTicket,verbose_name=u'票据')
+    kjkm = models.ForeignKey(KJKM,verbose_name=u'会计科目')
+    bbfield = models.ForeignKey(BBField,verbose_name=u'对应表字段')
+    value = models.CharField(max_length=50,verbose_name=u'字段对应值')
+
+#
+#
+# class ZZBB(models.Model):
+#     taxticket = models.ForeignKey(TaxTicket)
+#     glzzsbbzb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联增值税报表主表')
+#     glzzsbbzby = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联增值税报表主表一')
+#     glzzsbbzbe = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联增值税报表主表二')
+#     gdzcdk = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'固定资产抵扣')
+#     is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
+#
+#
+# class CZZS(models.Model):
+#     taxticket = models.ForeignKey(TaxTicket)
+#     glqysdszb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联企业所得税主表')
+#     glssyhmxb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联税收优惠明细表')
+#     glsdsylzsdbb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联所得税与流转税对比表')
+#     is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
+#
+#
+# class CWBB(models.Model):
+#     taxticket = models.ForeignKey(TaxTicket)
+#     glcwbblrb = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name=u'关联财务报表利润表')
+#     is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
 
 
 class PZ(models.Model):
-    taxticket = models.ForeignKey(TaxTicket)
+
+    kjkm = models.ManyToManyField(KJKMTicket)
     user = models.ForeignKey(User, verbose_name=u'创建者')
     name = models.CharField(max_length=20, db_index=True, blank=True, null=True, verbose_name=u'凭证名称')
     desc = models.CharField(max_length=1000, db_index=True, blank=True, null=True, verbose_name=u'凭证备注')
