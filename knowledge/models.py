@@ -13,19 +13,24 @@ class Group(models.Model):
 
 
 class TaxKind(models.Model):
-    name = models.CharField(max_length=100, unique=True, verbose_name=u'分类名称', help_text=u'多级分类')
+    name = models.CharField(max_length=100, verbose_name=u'分类名称', help_text=u'多级分类')
     fatherKind = models.ForeignKey('TaxKind', blank=True, null=True, verbose_name=u'父类', help_text=u'多级分类')
     is_active = models.BooleanField(default=True, verbose_name=u'可用')
 
+    class Meta():
+        unique_together =(('name','fatherKind'),)
+
+
 
 class TaxTicket(models.Model):
-    name = models.CharField(max_length=200, db_index=True, verbose_name=u'票据名称')
+
+    name = models.CharField(max_length=1000, verbose_name=u'票据名称')
     group = models.ForeignKey(Group)
     taxkind = models.ForeignKey(TaxKind)
 
 
 class KJKM(models.Model):
-    name = models.CharField(max_length=30,db_index=True,verbose_name=u'会计科目名称')
+    name = models.CharField(max_length=100,db_index=True,verbose_name=u'会计科目名称')
 
 class KJKMTicket(models.Model):
     kjkm = models.ForeignKey(KJKM,verbose_name=u'会计科目')
@@ -39,8 +44,7 @@ class BBField(models.Model):
     fieldname = models.CharField(max_length=20,verbose_name=u'字段名称')
 
 class BBFieldValue(models.Model):
-    ticket = models.ForeignKey(TaxTicket,verbose_name=u'票据')
-    kjkm = models.ForeignKey(KJKM,verbose_name=u'会计科目')
+    kjkmticket = models.ForeignKey(KJKMTicket,verbose_name=u'会计科目票据')
     bbfield = models.ForeignKey(BBField,verbose_name=u'对应表字段')
     value = models.CharField(max_length=50,verbose_name=u'字段对应值')
 
@@ -74,25 +78,25 @@ class PZ(models.Model):
     kjkm = models.ManyToManyField(KJKMTicket)
     user = models.ForeignKey(User, verbose_name=u'创建者')
     name = models.CharField(max_length=20, db_index=True, blank=True, null=True, verbose_name=u'凭证名称')
-    desc = models.CharField(max_length=1000, db_index=True, blank=True, null=True, verbose_name=u'凭证备注')
+    desc = models.CharField(max_length=1000,  blank=True, null=True, verbose_name=u'凭证备注')
     is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
 
 
 class FL(models.Model):
     FX = ((u'借', True), (u'贷', False))
     pz = models.ForeignKey(PZ)
-    kmmc = models.CharField(max_length=300, db_index=True, blank=True, null=True, verbose_name=u'科目名称',
+    kmmc = models.CharField(max_length=250, db_index=True, blank=True, null=True, verbose_name=u'科目名称',
                             help_text=u'分录科目名称')
     zy = models.CharField(max_length=100, db_index=True, blank=True, null=True, verbose_name=u'摘要')
     fx = models.BooleanField(default=True, choices=FX, verbose_name=u'方向', help_text=u'借正贷负')
-    desc = models.CharField(max_length=1000, db_index=True, blank=True, null=True, verbose_name=u'凭证备注')
+    desc = models.CharField(max_length=1000,  blank=True, null=True, verbose_name=u'凭证备注')
 
 
 class Replay(models.Model):
     replayId = models.IntegerField(verbose_name=u'主键', db_index=True)
     replayType = models.CharField(max_length=20, db_index=True, verbose_name=u'提问实体')
     user = models.ForeignKey(User)
-    content = models.CharField(max_length=2000, db_index=True, verbose_name=u'内容')
+    content = models.CharField(max_length=1000,  verbose_name=u'内容')
     is_first = models.BooleanField(default=True, db_index=True, verbose_name=u'是否第一条', help_text=u'由第一条来决定是否讨论结束')
     is_close = models.BooleanField(default=False, db_index=True, verbose_name=u'是否结束')
 

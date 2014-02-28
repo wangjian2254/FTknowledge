@@ -1,21 +1,23 @@
 #coding=utf-8
 # Create your views here.
 import datetime
-from django.contrib.auth import  login as auth_login, logout as auth_logout
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, AnonymousUser
 from django.http import HttpResponse
+from django.core.cache import cache
 from django.shortcuts import render_to_response
-from tools import getResult
-from models import Group, TaxKind, TaxTicket, BBField, BB
+from tools import getResult, clearTicketCache
+from models import Group, TaxKind, TaxTicket, BBField, BB, KJKMTicket, KJKM, BBFieldValue
 
 
 def index(request):
-    url='http://'+request.META['HTTP_HOST']+'/static/swf/'
-    return render_to_response('index.html',{'url':url,'p':datetime.datetime.now()})
+    url = 'http://' + request.META['HTTP_HOST'] + '/static/swf/'
+    return render_to_response('index.html', {'url': url, 'p': datetime.datetime.now()})
+
 
 def menu(request):
-    menuxml='''
+    menuxml = '''
     <?xml version='1.0' encoding='utf-8'?>
 			<root>
 				<menu mod='myMenu1' label='基础管理'>
@@ -35,18 +37,20 @@ def menu(request):
     '''
     return HttpResponse(menuxml)
 
+
 def logout(request):
     auth_logout(request)
-    return getResult(True,'')
+    return getResult(True, '')
+
 
 def login(request):
     username = request.REQUEST.get('username')
     if username:
         userlist = User.objects.filter(username=username)[:1]
-        if len(userlist)>0:
-            user=userlist[0]
+        if len(userlist) > 0:
+            user = userlist[0]
             if not user.is_active:
-                return getResult(False,u'用户已经停止使用。')
+                return getResult(False, u'用户已经停止使用。')
     form = AuthenticationForm(data=request.POST)
     if form.is_valid():
 
@@ -57,9 +61,11 @@ def login(request):
         if request.session.test_cookie_worked():
             request.session.delete_test_cookie()
 
-        return getResult(True,u'登录成功')
+        return getResult(True, u'登录成功')
     else:
-        return getResult(False,u'用户名密码错误')
+        return getResult(False, u'用户名密码错误')
+
+
 def regUser(request):
     result = saveUser(request)
     if result.get('success'):
@@ -67,69 +73,91 @@ def regUser(request):
 
         if request.session.test_cookie_worked():
             request.session.delete_test_cookie()
-        return getResult(True,'',None)
+        return getResult(True, '', None)
     else:
-        return getResult(False,'注册失败',None)
+        return getResult(False, '注册失败', None)
+
+
 def saveUser(request):
-    id = request.REQUEST.get('id','')
+    id = request.REQUEST.get('id', '')
     if id:
         user = User.objects.get(pk=id)
     else:
         user = User
         user.set_password('111111')
-        user.username = request.REQUEST.get('username','')
-        if not user.username or User.objects.filter(username=user.username).count()>0:
-            return getResult(False,u'用户名已经存在',None)
-    is_active = request.REQUEST.get('isaction','')
+        user.username = request.REQUEST.get('username', '')
+        if not user.username or User.objects.filter(username=user.username).count() > 0:
+            return getResult(False, u'用户名已经存在', None)
+    is_active = request.REQUEST.get('isaction', '')
     if is_active:
         if is_active == 'true':
-            user.is_active=True
+            user.is_active = True
         else:
-            user.is_active=False
-    is_staff = request.REQUEST.get('ismanager','')
+            user.is_active = False
+    is_staff = request.REQUEST.get('ismanager', '')
     if is_staff:
         if is_staff == 'true':
             user.is_staff = True
         else:
             user.is_staff = False
-    user.first_name = request.REQUEST.get('truename',u'游客')
+    user.first_name = request.REQUEST.get('truename', u'游客')
     if request.REQUEST.has_key('password'):
         user.set_password(request.REQUEST.get('password'))
     user.save()
-    return getResult(True,'',{'username':user.username,'truename':user.first_name,'ismanager':user.is_staff,'isaction':user.is_active,'id':user.pk})
+    return getResult(True, '', {'username': user.username, 'truename': user.first_name, 'ismanager': user.is_staff,
+                                'isaction': user.is_active, 'id': user.pk})
+
 
 def allmanager(request):
-    uq=User.objects.filter(is_staff=True).filter(is_active=True)
-    l=[]
+    uq = User.objects.filter(is_staff=True).filter(is_active=True)
+    l = []
     for u in uq:
-        l.append({'username':u.username,'truename':u.first_name,'ismanager':u.is_staff,'isaction':u.is_active,'id':u.pk})
+        l.append({'username': u.username, 'truename': u.first_name, 'ismanager': u.is_staff, 'isaction': u.is_active,
+                  'id': u.pk})
 
-    return getResult(True,'',l)
+    return getResult(True, '', l)
+
 
 def currentUser(request):
-    if  isinstance(request.user,AnonymousUser):
-        return getResult(True,'',None)
+    if isinstance(request.user, AnonymousUser):
+        return getResult(True, '', None)
     else:
-        return getResult(True,'',{'username':request.user.username,'truename':request.user.first_name,'ismanager':request.user.is_staff,'isaction':request.user.is_active,'id':request.user.pk})
+        return getResult(True, '', {'username': request.user.username, 'truename': request.user.first_name,
+                                    'ismanager': request.user.is_staff, 'isaction': request.user.is_active,
+                                    'id': request.user.pk})
+
 
 def getHyList(request):
-    l=[]
+    l = []
     for g in Group.objects.filter(is_active=True).order_by('id'):
-        l.append({'id':g.pk, 'name':g.name})
-    return getResult(True,'',l)
+        l.append({'id': g.pk, 'name': g.name})
+    return getResult(True, '', l)
 
 
 def getTaxKind(request):
-    group = request.REQUEST.get('groupid','')
+    group = request.REQUEST.get('groupid', '')
+    cachename = 'taxkindstr%s' % group
+    taxkindstr = cache.get(cachename)
+    if taxkindstr:
+        return HttpResponse(taxkindstr)
     groupquery = Group.objects.filter(is_active=True)
     if group:
-        groupquery=groupquery.filter(pk=group)
+        groupquery = groupquery.filter(pk=group)
 
-    kindlist=[]
-    kindidlist=[]
-    kinddict={}
+    kindlist = []
+    kindidlist = []
+    kinddict = {}
+
+    kjkmdict = {}
+    for kjkm in KJKMTicket.objects.all():
+        if not kjkmdict.has_key(str(kjkm.tickets_id)):
+            kjkmdict[str(kjkm.tickets_id)] = []
+        kjkmdict[str(kjkm.tickets_id)].append(
+            {'type': 'kjkm', 'name': kjkm.kjkm.name, 'id': kjkm.pk, 'kjkmid': kjkm.kjkm_id,
+             'ticketid': kjkm.tickets_id})
     for kind in TaxKind.objects.all().order_by('id'):
-        kinddict['%s'%kind.pk]={'id':kind.pk, 'type':'kind', 'fatherKindid':kind.fatherKind_id,'name':kind.name,'is_active':kind.is_active,'children':[]}
+        kinddict['%s' % kind.pk] = {'id': kind.pk, 'type': 'kind', 'fatherKindid': kind.fatherKind_id,
+                                    'name': kind.name, 'is_active': kind.is_active, 'children': []}
         kindidlist.append(kind.pk)
     kind = None
     for kid in kindidlist:
@@ -139,18 +167,21 @@ def getTaxKind(request):
         else:
             kinddict[str(kind.get('fatherKindid'))]['children'].append(kind)
     for ticket in TaxTicket.objects.filter(group__in=groupquery).order_by('id'):
-        kinddict['%s'%ticket.taxkind_id]['children'].append({'name':ticket.name, 'id':ticket.pk, 'type':'ticket', 'fatherKindid':ticket.taxkind_id})
+        tdict = {'name': ticket.name, 'id': ticket.pk, 'type': 'ticket', 'fatherKindid': ticket.taxkind_id}
+        if kjkmdict.has_key(str(ticket.id)):
+            tdict['children'] = kjkmdict[str(ticket.id)]
+        kinddict['%s' % ticket.taxkind_id]['children'].append(tdict)
     for kind in kinddict.values():
-        if len(kind['children'])==0:
+        if len(kind['children']) == 0:
             del kind['children']
-    return getResult(True,'',kindlist)
+    return getResult(True, '', kindlist, cachename=cachename)
 
 
 def saveTaxKind(request):
-    id = request.REQUEST.get('id','')
-    name = request.REQUEST.get('name','')
-    kindFatherId = request.REQUEST.get('kindFatherId','')
-    is_active = request.REQUEST.get('is_active','')
+    id = request.REQUEST.get('id', '')
+    name = request.REQUEST.get('name', '')
+    kindFatherId = request.REQUEST.get('kindFatherId', '')
+    is_active = request.REQUEST.get('is_active', '')
 
     if id:
         taxKind = TaxKind.objects.get(pk=id)
@@ -160,26 +191,25 @@ def saveTaxKind(request):
     if kindFatherId:
         taxKind.fatherKind = TaxKind.objects.get(pk=kindFatherId)
     if is_active == 'true':
-        taxKind.is_active=True
+        taxKind.is_active = True
     else:
-        taxKind.is_active=False
+        taxKind.is_active = False
     taxKind.save()
-
-    return getResult(True,'',taxKind.pk)
-
-
-
+    clearTicketCache()
+    return getResult(True, '', taxKind.pk)
 
 
 def saveTaxTicket(request):
-    id = request.REQUEST.get('id','')
-    name = request.REQUEST.get('name','')
-    taxkindid = request.REQUEST.get('taxkindid','')
-    groupid = request.REQUEST.get('groupid','')
+    id = request.REQUEST.get('id', '')
+    name = request.REQUEST.get('name', '')
+    taxkindid = request.REQUEST.get('taxkindid', '')
+    groupid = request.REQUEST.get('groupid', '')
 
     if id:
         taxTicket = TaxTicket.objects.get(pk=id)
     else:
+        if 0 < TaxTicket.objects.filter(taxkind=taxkindid, group=groupid, name=name).count():
+            return getResult(False, u'票据已经存在', None)
         taxTicket = TaxTicket()
     taxTicket.name = name.strip()
     if taxkindid:
@@ -187,75 +217,133 @@ def saveTaxTicket(request):
     if groupid:
         taxTicket.group = Group.objects.get(pk=groupid)
     taxTicket.save()
-
-    return getResult(True,'',taxTicket.pk)
-
-
+    clearTicketCache(groupid)
+    return getResult(True, '', taxTicket.pk)
 
 
 def delTaxTicket(request):
-    id = request.REQUEST.get('id','')
+    id = request.REQUEST.get('id', '')
     if id:
         taxTicket = TaxTicket.objects.get(pk=id)
+        clearTicketCache(taxTicket.group_id)
         taxTicket.delete()
     else:
-        getResult(False,u'票据不存在',None)
+        getResult(False, u'票据不存在', None)
 
-    return getResult(True,'',None)
+    return getResult(True, '', None)
 
 
 def getBB(request):
-    bblist=[]
+    bblist = []
     for bb in BB.objects.all().order_by('id'):
-        bd={'children':[], 'id':bb.pk, 'name':bb.name, 'type':'bb'}
+        bd = {'children': [], 'id': bb.pk, 'name': bb.name, 'type': 'bb'}
         bblist.append(bd)
 
         for field in BBField.objects.filter(bb=bb).order_by('id'):
-            bd['children'].append({'id':field.pk, 'name':field.fieldname, 'type':'field'})
-    return getResult(True,'',bblist)
+            bd['children'].append({'id': field.pk, 'name': field.fieldname, 'type': 'field'})
+    return getResult(True, '', bblist)
+
 
 def saveBB(request):
-    id = request.REQUEST.get('id','')
-    name = request.REQUEST.get('name','')
+    id = request.REQUEST.get('id', '')
+    name = request.REQUEST.get('name', '')
     if id:
         bb = BB.objects.get(pk=id)
     else:
         bb = BB()
     bb.name = name
     bb.save()
-    return getResult(True,'',bb.pk)
+    return getResult(True, '', bb.pk)
 
 
 def delBB(request):
-    id = request.REQUEST.get('id','')
+    id = request.REQUEST.get('id', '')
     if id:
         taxTicket = BB.objects.get(pk=id)
         taxTicket.delete()
     else:
-        getResult(False,u'报表不存在',None)
+        getResult(False, u'报表不存在', None)
 
-    return getResult(True,'',None)
+    return getResult(True, '', None)
+
 
 def saveBBField(request):
-    id = request.REQUEST.get('id','')
-    bbid = request.REQUEST.get('bbid','')
-    name = request.REQUEST.get('name','')
+    id = request.REQUEST.get('id', '')
+    bbid = request.REQUEST.get('bbid', '')
+    name = request.REQUEST.get('name', '')
     if id:
-        bbf=BBField.objects.get(pk=id)
+        bbf = BBField.objects.get(pk=id)
     else:
         bbf = BBField()
     bbf.bb = BB.objects.get(pk=bbid)
     bbf.fieldname = name
     bbf.save()
-    return getResult(True,'',bbf.pk)
+    return getResult(True, '', bbf.pk)
 
 
 def delBBField(request):
-    id = request.REQUEST.get('id','')
+    id = request.REQUEST.get('id', '')
     if id:
         taxTicket = BBField.objects.get(pk=id)
         taxTicket.delete()
     else:
-        getResult(False,u'报表字段不存在',None)
+        getResult(False, u'报表字段不存在', None)
 
-    return getResult(True,'',None)
+    return getResult(True, '', None)
+
+
+def getKJKM(request):
+    cachename = 'kjkmstr'
+    jsontr = cache.get(cachename)
+    if jsontr:
+        return HttpResponse(jsontr)
+    l = []
+    for kjkm in KJKM.objects.all().order_by('name'):
+        l.append({'name': kjkm.name, 'id': kjkm.pk})
+    return getResult(True, '', l, cachename=cachename)
+
+
+def getKJKMbyTicket(request):
+    ticketid = request.REQUEST.get('ticketid','')
+    l = []
+    for kjkm in KJKMTicket.objects.filter(tickets_id=ticketid).order_by('kjkm'):
+        l.append({'name': kjkm.kjkm.name, 'id': kjkm.kjkm_id})
+    return getResult(True, '', l)
+
+
+def saveKJKM(request):
+    name = request.REQUEST.get("kjkm","")
+    if name and KJKM.objects.filter(name = name).count()==0:
+        kjkm = KJKM()
+        kjkm.name = name
+        kjkm.save()
+        return getResult(True,'',kjkm.pk)
+    return getResult(False,u'会计科目已存在')
+
+
+def saveKJKMByTicket(request):
+    ticketid = request.REQUEST.get('ticketid','')
+    kjkmids = request.REQUEST.get("kjkms","").split(',')
+    kjkmids.remove('')
+
+    if ticketid:
+        ticket = TaxTicket.objects.get(pk = ticketid)
+        KJKMTicket.objects.filter(tickets=ticket).delete()
+        clearTicketCache(ticket.group_id)
+        for kjkm in  KJKM.objects.filter(pk__in=kjkmids):
+            kt=KJKMTicket()
+            kt.tickets =ticket
+            kt.kjkm = kjkm
+            kt.save()
+        return getResult(True,'',kjkm.pk)
+    return getResult(False,u'会计科目已存在')
+
+def getBBFieldValuebyTicketKjkm(request):
+    kjkmticketid = request.REQUEST.get('id','')
+    if kjkmticketid:
+        o ={'kjkmticketid':kjkmticketid}
+        for v in BBFieldValue.objects.filter(kjkmticket=kjkmticketid):
+            o['%s'%v.bbfield_id]=v.value
+
+        return getResult(True,'',o)
+    return getResult(False,u'请选择一个会计科目')

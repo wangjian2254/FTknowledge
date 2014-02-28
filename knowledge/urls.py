@@ -25,6 +25,12 @@ urlpatterns = patterns('knowledge',
     url(r'^delBB$', 'views.delBB'),
     url(r'^saveBBField$', 'views.saveBBField'),
     url(r'^delBBField$', 'views.delBBField'),
+    url(r'^initData$', 'importExcel.initData'),
+    url(r'^getKJKM$', 'views.getKJKM'),
+    url(r'^getKJKMbyTicket$', 'views.getKJKMbyTicket'),
+    url(r'^saveKJKM$', 'views.saveKJKM'),
+    url(r'^saveKJKMByTicket$', 'views.saveKJKMByTicket'),
+    url(r'^getBBFieldValuebyTicketKjkm$', 'views.getBBFieldValuebyTicketKjkm'),
     # url(r'^FTknowledge/', include('FTknowledge.foo.urls')),
 
 
