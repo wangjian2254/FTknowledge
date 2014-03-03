@@ -4,6 +4,7 @@ import datetime
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, AnonymousUser
+from django.db.models import Q
 from django.http import HttpResponse
 from django.core.cache import cache
 from django.shortcuts import render_to_response
@@ -29,7 +30,7 @@ def menu(request):
 				</menu>
 				<menu mod='myMenu2' label='知识库'>
 				    <menuitem label='知识库编辑' mod='knowledgeedit'></menuitem>
-				    <menuitem label='知识库查询' mod='knowledgesearch'></menuitem>
+				    <menuitem label='知识库查询' mod='knowledgequery'></menuitem>
 
 				</menu>
 
@@ -328,13 +329,14 @@ def saveKJKMByTicket(request):
 
     if ticketid:
         ticket = TaxTicket.objects.get(pk = ticketid)
-        KJKMTicket.objects.filter(tickets=ticket).delete()
+        KJKMTicket.objects.filter(tickets=ticket).exclude(kjkm__in=kjkmids).delete()
         clearTicketCache(ticket.group_id)
         for kjkm in  KJKM.objects.filter(pk__in=kjkmids):
-            kt=KJKMTicket()
-            kt.tickets =ticket
-            kt.kjkm = kjkm
-            kt.save()
+            if KJKMTicket.objects.filter(tickets=ticket,kjkm=kjkm).count()==0:
+                kt=KJKMTicket()
+                kt.tickets =ticket
+                kt.kjkm = kjkm
+                kt.save()
         return getResult(True,'',kjkm.pk)
     return getResult(False,u'会计科目已存在')
 
@@ -347,3 +349,118 @@ def getBBFieldValuebyTicketKjkm(request):
 
         return getResult(True,'',o)
     return getResult(False,u'请选择一个会计科目')
+
+def saveBBFieldValuebyTicketKjkm(request):
+    kjkmticketid = request.REQUEST.get('kjkmticketid','')
+    if kjkmticketid:
+        kjkmticket = KJKMTicket.objects.get(pk=kjkmticketid)
+        datafield = request.REQUEST.getlist('datafield')
+        BBFieldValue.objects.filter(kjkmticket=kjkmticketid).exclude(bbfield__in=datafield).delete()
+        # for fieldvalue in BBFieldValue.objects.filter(kjkmticket=kjkmticketid,bbfield__in=datafield):
+        for fieldname in datafield:
+            v = request.REQUEST.get(fieldname)
+            if BBFieldValue.objects.filter(kjkmticket=kjkmticketid,bbfield=fieldname).count()==0:
+                fieldvalue = BBFieldValue()
+                fieldvalue.bbfield = BBField.objects.get(pk=fieldname)
+                fieldvalue.kjkmticket = kjkmticket
+            else:
+                fieldvalue = BBFieldValue.objects.get(kjkmticket=kjkmticketid,bbfield=fieldname)
+                if not v:
+                    v.delete()
+            if v:
+                fieldvalue.value = request.REQUEST.get(fieldname)
+                fieldvalue.save()
+        return getResult(True,'')
+
+    return getResult(False,u'请选择一个会计科目')
+
+
+def queryKnowledge(request):
+    hy = request.REQUEST.get('hy','')
+    key = request.REQUEST.get('key','')
+    kind = request.REQUEST.get('kind','')
+    ticket = request.REQUEST.get('ticket','')
+    kjkm = request.REQUEST.get('kjkm','')
+    keyQ =None
+    keyNameQ =None
+    if key:
+        for k in key.split(' '):
+            if keyQ:
+                keyQ = Q(value__contains=k)|keyQ
+                keyNameQ = Q(name__contains=k)|keyNameQ
+            else:
+                keyQ = Q(value__contains=k)
+                keyNameQ = Q(name__contains=k)
+
+
+    ticketquery = TaxTicket.objects.all()
+
+
+    kindquery = TaxKind.objects.filter(is_active=True)
+    if kind and  keyNameQ:
+        kindquery = kindquery.filter(Q(name__contains=kind)|keyNameQ)
+    elif kind and not keyNameQ:
+        kindquery = kindquery.filter(Q(name__contains=kind))
+    elif keyNameQ:
+        kindquery = kindquery.filter(keyNameQ)
+
+    if keyNameQ:
+        ticketquery = ticketquery.filter(keyNameQ | Q(taxkind__in=kindquery))
+    else:
+        ticketquery = ticketquery.filter( Q(taxkind__in=kindquery))
+    kjkmticketyquery = KJKMTicket.objects.all()
+    if kjkm and keyNameQ:
+        kjkmquery = KJKM.objects.filter(Q(name__contains=kjkm), keyNameQ)
+    elif kjkm and not keyNameQ:
+        kjkmquery = KJKM.objects.filter(Q(name__contains=kjkm))
+    elif keyNameQ:
+        kjkmquery = KJKM.objects.filter(keyNameQ)
+
+    if ticket and keyNameQ:
+        ticketquery = ticketquery.filter(Q(name__contains=ticket), keyNameQ)
+    elif ticket and not keyNameQ:
+        ticketquery = ticketquery.filter(Q(name__contains=ticket))
+    elif keyNameQ:
+        ticketquery = ticketquery.filter(keyNameQ)
+
+    kjkmticketyquery = kjkmticketyquery.filter(Q(kjkm__in=kjkmquery)|Q(tickets__in=ticketquery))
+
+    if keyQ:
+        bbFieldValuequery = BBFieldValue.objects.filter(keyQ,Q(kjkmticket__in=kjkmticketyquery))
+    else:
+        bbFieldValuequery = BBFieldValue.objects.filter(Q(kjkmticket__in=kjkmticketyquery))
+    if hy:
+        bbFieldValuequery = bbFieldValuequery.filter(kjkmticket__in=KJKMTicket.objects.filter(tickets__in=TaxTicket.objects.filter(group=hy)))
+    kjkmticketids = []
+    for b in bbFieldValuequery:
+        kjkmticketids.append(b.kjkmticket_id)
+    l = []
+    datadict = {}
+    maxkind=0
+    for bbvalue in BBFieldValue.objects.filter(kjkmticket__in=kjkmticketids):
+        if datadict.has_key(str(bbvalue.kjkmticket_id)):
+            d = datadict[str(bbvalue.kjkmticket_id)]
+        else:
+            d = {'kjkmticketid':bbvalue.kjkmticket_id }
+            d['kjkm']= bbvalue.kjkmticket.kjkm.name
+            d['ticket'] = bbvalue.kjkmticket.tickets.name
+            d['groupid'] = bbvalue.kjkmticket.tickets.group_id
+            d['group'] = bbvalue.kjkmticket.tickets.group.name
+            num = doKindCeng(bbvalue.kjkmticket.tickets.taxkind,d)
+            if num > maxkind:
+                maxkind = num
+            datadict[str(bbvalue.kjkmticket_id)] = d
+            l.append(d)
+        d['%s'%bbvalue.bbfield_id]=bbvalue.value
+    result ={'kindnum':maxkind, 'result':l}
+
+    return getResult(True, '', result)
+
+def doKindCeng(kind,d):
+    if kind.fatherKind:
+        c = doKindCeng(kind.fatherKind,d)
+        d['kind%s'%(c+1,)]=kind.name
+        return c+1
+    else:
+        d['kind%s'%0]=kind.name
+        return 0

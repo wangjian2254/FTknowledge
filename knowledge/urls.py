@@ -31,6 +31,8 @@ urlpatterns = patterns('knowledge',
     url(r'^saveKJKM$', 'views.saveKJKM'),
     url(r'^saveKJKMByTicket$', 'views.saveKJKMByTicket'),
     url(r'^getBBFieldValuebyTicketKjkm$', 'views.getBBFieldValuebyTicketKjkm'),
+    url(r'^saveBBFieldValuebyTicketKjkm$', 'views.saveBBFieldValuebyTicketKjkm'),
+    url(r'^queryKnowledge$', 'views.queryKnowledge'),
     # url(r'^FTknowledge/', include('FTknowledge.foo.urls')),
 
 
