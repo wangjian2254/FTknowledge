@@ -1,6 +1,7 @@
 #coding=utf-8
 #Date: 11-12-8
 #Time: 下午10:28
+from knowledge.models import Ticket
 from knowledge.tools import getResult
 
 __author__ = u'王健'
@@ -30,8 +31,14 @@ def initData(request):
         xls = '../static/data.xls'
     else:
         from FTknowledge.settings import STATIC_ROOT
-        from models import Group, TaxKind, TaxTicket, BBField, BB, KJKM, KJKMTicket
+        from models import Group, TaxKind, TaxTicket, BBField, BB,BBFieldValue, KJKM, KJKMTicket
         xls = '%s/data.xls'%STATIC_ROOT
+        bbdict = {}
+        s=u'关联增值税报表主表 关联增值税报表主表一 关联增值税报表主表二 固定资产抵扣 关联企业所得税主表 关联税收优惠明细表 关联所得税与流转税对比表 关联财务报表利润表'
+        for ss in s.split(' '):
+            if not bbdict.has_key(ss):
+                bbdict[ss]=BBField.objects.get(fieldname=ss)
+
     bk = xlrd.open_workbook(xls)
 
 
@@ -99,6 +106,13 @@ def initData(request):
                         else:
                             ticket = TaxTicket.objects.get(name=psname,group=group,taxkind=sstax)
 
+                        try:
+                            t = Ticket()
+                            t.name = psname
+                            t.save()
+                        except:
+                            pass
+
 
                     print '(%s,%s):%s'%(ps,3,sh.cell_value(ps,3))
                     if request:
@@ -115,6 +129,24 @@ def initData(request):
                             kjkmticket.kjkm = kjkm
                             kjkmticket.tickets = ticket
                             kjkmticket.save()
+                        else:
+                            kjkmticket = KJKMTicket.objects.get(kjkm=kjkm,tickets=ticket)
+                        for j in range(nclos):
+                            if bbdict.has_key(sh.cell_value(1,j)):
+                                v = sh.cell_value(ps,j)
+                                if BBFieldValue.objects.filter(kjkmticket=kjkmticket,bbfield=bbdict[sh.cell_value(1,j)]).count()==0:
+                                    bbv = BBFieldValue()
+                                else:
+                                    bbv = BBFieldValue.objects.get(kjkmticket=kjkmticket,bbfield=bbdict[sh.cell_value(1,j)])
+                                if v and v!=u'无':
+
+                                    bbv.value = v
+                                    bbv.kjkmticket = kjkmticket
+                                    bbv.bbfield = bbdict[sh.cell_value(1,j)]
+                                    bbv.save()
+                                elif bbv.pk:
+                                    bbv.delete()
+
 
         # print sh.cell_value(11,0)
     if request:

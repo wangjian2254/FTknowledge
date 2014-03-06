@@ -31,6 +31,7 @@ def menu(request):
 				<menu mod='myMenu2' label='知识库'>
 				    <menuitem label='知识库编辑' mod='knowledgeedit'></menuitem>
 				    <menuitem label='知识库查询' mod='knowledgequery'></menuitem>
+				    <menuitem label='查询' mod='autokjedit'></menuitem>
 
 				</menu>
 
@@ -386,54 +387,47 @@ def queryKnowledge(request):
     if key:
         for k in key.split(' '):
             if keyQ:
-                keyQ = Q(value__contains=k)|keyQ
-                keyNameQ = Q(name__contains=k)|keyNameQ
+                keyQ = Q(value__contains=k)&keyQ
+                keyNameQ = Q(name__contains=k)&keyNameQ
             else:
                 keyQ = Q(value__contains=k)
                 keyNameQ = Q(name__contains=k)
-
-
     ticketquery = TaxTicket.objects.all()
 
-
-    kindquery = TaxKind.objects.filter(is_active=True)
-    if kind and  keyNameQ:
-        kindquery = kindquery.filter(Q(name__contains=kind)|keyNameQ)
-    elif kind and not keyNameQ:
-        kindquery = kindquery.filter(Q(name__contains=kind))
-    elif keyNameQ:
-        kindquery = kindquery.filter(keyNameQ)
-
-    if keyNameQ:
-        ticketquery = ticketquery.filter(keyNameQ | Q(taxkind__in=kindquery))
-    else:
-        ticketquery = ticketquery.filter( Q(taxkind__in=kindquery))
-    kjkmticketyquery = KJKMTicket.objects.all()
-    if kjkm and keyNameQ:
-        kjkmquery = KJKM.objects.filter(Q(name__contains=kjkm), keyNameQ)
-    elif kjkm and not keyNameQ:
-        kjkmquery = KJKM.objects.filter(Q(name__contains=kjkm))
-    elif keyNameQ:
+    #第一种情况 模糊查询：
+    if not kind and not ticket and not kjkm:
+        kindquery = TaxKind.objects.filter(is_active=True).filter(keyNameQ)
+        ticketquery = ticketquery.filter( Q(taxkind__in=kindquery)|keyNameQ)
         kjkmquery = KJKM.objects.filter(keyNameQ)
+        kjkmticketyquery = KJKMTicket.objects.filter(Q(kjkm__in=kjkmquery)|Q(tickets__in=ticketquery))
 
-    if ticket and keyNameQ:
-        ticketquery = ticketquery.filter(Q(name__contains=ticket), keyNameQ)
-    elif ticket and not keyNameQ:
-        ticketquery = ticketquery.filter(Q(name__contains=ticket))
-    elif keyNameQ:
-        ticketquery = ticketquery.filter(keyNameQ)
-
-    kjkmticketyquery = kjkmticketyquery.filter(Q(kjkm__in=kjkmquery)|Q(tickets__in=ticketquery))
-
-    if keyQ:
-        bbFieldValuequery = BBFieldValue.objects.filter(keyQ,Q(kjkmticket__in=kjkmticketyquery))
     else:
-        bbFieldValuequery = BBFieldValue.objects.filter(Q(kjkmticket__in=kjkmticketyquery))
+        #第二种情况 高级模糊查询
+        if kind:
+            kindquery = TaxKind.objects.filter(is_active=True).filter(name__contains=kind)
+        else:
+            kindquery = TaxKind.objects.filter(is_active=True).filter(keyNameQ)
+        if ticket:
+            ticketquery = ticketquery.filter(Q(taxkind__in=kindquery)|Q(name__contains=ticket))
+        else:
+            ticketquery = ticketquery.filter( Q(taxkind__in=kindquery)|keyNameQ)
+        if kjkm:
+            kjkmquery = KJKM.objects.filter(keyNameQ)
+        else:
+            kjkmquery = KJKM.objects.filter(Q(name__contains=kjkm))
+
+        kjkmticketyquery = KJKMTicket.objects.filter(Q(kjkm__in=kjkmquery)&Q(tickets__in=ticketquery))
+    bbFieldValuequery = BBFieldValue.objects.filter(keyQ)
     if hy:
+        kjkmticketyquery = kjkmticketyquery.filter(tickets__in=TaxTicket.objects.filter(group=hy))
         bbFieldValuequery = bbFieldValuequery.filter(kjkmticket__in=KJKMTicket.objects.filter(tickets__in=TaxTicket.objects.filter(group=hy)))
+
     kjkmticketids = []
     for b in bbFieldValuequery:
         kjkmticketids.append(b.kjkmticket_id)
+    for k in kjkmticketyquery:
+        kjkmticketids.append(k.id)
+
     l = []
     datadict = {}
     maxkind=0

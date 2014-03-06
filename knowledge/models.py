@@ -46,7 +46,10 @@ class BBField(models.Model):
 class BBFieldValue(models.Model):
     kjkmticket = models.ForeignKey(KJKMTicket,verbose_name=u'会计科目票据')
     bbfield = models.ForeignKey(BBField,verbose_name=u'对应表字段')
-    value = models.CharField(max_length=50,verbose_name=u'字段对应值')
+    value = models.CharField(max_length=200,verbose_name=u'字段对应值')
+
+    class Meta():
+        unique_together =(('kjkmticket','bbfield'),)
 
 #
 #
@@ -106,3 +109,77 @@ class ImageInfo(models.Model):
     index = models.IntegerField(default=0, blank=True, null=True, db_index=True, verbose_name=u'排序')
     modelId = models.IntegerField(verbose_name=u'主键', db_index=True)
     modelType = models.CharField(max_length=20, db_index=True, verbose_name=u'使用图片的实体')
+
+
+
+
+class Rule(models.Model):
+    name = models.CharField(max_length=30,db_index=True,verbose_name=u'规则名')
+    class Meta():
+        verbose_name=u'行业'
+        verbose_name_plural=u'行业列表'
+
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+class Ticket(models.Model):
+    name = models.CharField(max_length=200,db_index=True, unique=True,verbose_name=u'票据名称')
+    fatherTicket = models.ForeignKey('Ticket', blank=True, null=True)
+    class Meta():
+        verbose_name=u'票据'
+        verbose_name_plural=u'票据列表'
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+class Business(models.Model):
+    name = models.CharField(max_length=200,db_index=True, unique=True,verbose_name=u'业务名称')
+    num = models.CharField(max_length=3,verbose_name=u'业务号')
+    fatherBusiness = models.ForeignKey('Business', blank=True, null=True)
+    class Meta():
+        verbose_name=u'业务'
+        verbose_name_plural=u'业务列表'
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+class KM(models.Model):
+    name = models.CharField(max_length=200,db_index=True, unique=True,verbose_name=u'会计科目')
+    fatherKM = models.ForeignKey('KM', blank=True, null=True)
+    class Meta():
+        verbose_name=u'会计科目'
+        verbose_name_plural=u'会计科目列表'
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+class KJZD(models.Model):
+    name = models.CharField(max_length=2000, verbose_name=u'会计制度')
+    fatherKJZD = models.ForeignKey('KJZD', blank=True, null=True)
+    class Meta():
+        verbose_name=u'会计制度'
+        verbose_name_plural=u'会计制度列表'
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+class SF(models.Model):
+    name = models.CharField(max_length=2000, verbose_name=u'税法')
+    fatherSF = models.ForeignKey('SF', blank=True, null=True)
+    class Meta():
+        verbose_name=u'税法'
+        verbose_name_plural=u'税法列表'
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+class Relation(models.Model):
+    rule = models.ForeignKey(Rule)
+    ticket = models.ForeignKey(Ticket)
+    business = models.ForeignKey(Business)
+    km = models.ForeignKey(KM)
+    kjzds = models.ManyToManyField(KJZD)
+    sf = models.ManyToManyField(SF)
+
+    class Meta():
+        verbose_name=u'关系'
+        verbose_name_plural=u'关系列表'
+        unique_together =(('rule','ticket','business','km'),)
+
+    def __unicode__(self):
+        return u'%s_%s_%s_%s' % (self.rule.name,self.ticket.name,self.business.name,self.km.name,)
