@@ -125,6 +125,13 @@ class Rule(models.Model):
 class Ticket(models.Model):
     name = models.CharField(max_length=200,db_index=True, unique=True,verbose_name=u'票据名称')
     fatherTicket = models.ForeignKey('Ticket', blank=True, null=True)
+
+    def getImgs(self):
+        l = []
+        for img in ImageInfo.objects.filter(modelType='ticket',modelId=self.pk).order_by('id'):
+            l.append(img.img.url)
+        return l
+
     class Meta():
         verbose_name=u'票据'
         verbose_name_plural=u'票据列表'
@@ -135,6 +142,13 @@ class Business(models.Model):
     name = models.CharField(max_length=200,db_index=True, unique=True,verbose_name=u'业务名称')
     num = models.CharField(max_length=3,verbose_name=u'业务号')
     fatherBusiness = models.ForeignKey('Business', blank=True, null=True)
+
+    def ywbh(self):
+        if self.fatherBusiness:
+            return '%s%s'%(self.fatherBusiness.ywbh(),self.num)
+        else:
+            return '%s'%self.num
+
     class Meta():
         verbose_name=u'业务'
         verbose_name_plural=u'业务列表'

@@ -48,6 +48,8 @@ urlpatterns = patterns('knowledge',
     url(r'^getAllKM', 'newviews.getAllKM'),
     url(r'^saveKM', 'newviews.saveKM'),
     url(r'^delKM', 'newviews.delKM'),
+    url(r'^imgUploaded', 'imgviews.imgUploaded'),
+    url(r'^delImg', 'imgviews.delImg'),
 
     # url(r'^FTknowledge/', include('FTknowledge.foo.urls')),
 

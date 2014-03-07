@@ -69,7 +69,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    ("upload", os.path.join(STATIC_ROOT,'upload')),
+    # ("upload", os.path.join(STATIC_ROOT,'upload')),
     ("swf", os.path.join(STATIC_ROOT,'swf')),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.

@@ -9,7 +9,6 @@ from django.core.cache import cache
 __author__ = u'王健'
 
 
-
 def getAllTicket(request):
     cachename = 'allticket'
     taxkindstr = cache.get(cachename)
@@ -20,7 +19,7 @@ def getAllTicket(request):
     kinddict = {}
     for ticket in Ticket.objects.all().order_by('id'):
         kinddict['%s' % ticket.pk] = {'id': ticket.pk, 'type': 'ticket', 'fatherid': ticket.fatherTicket_id,
-                                    'name': ticket.name, 'children': []}
+                                      'imgs':ticket.getImgs(),  'name': ticket.name, 'children': []}
         kindidlist.append(ticket.pk)
     for kid in kindidlist:
         kind = kinddict.get(str(kid))
@@ -62,7 +61,6 @@ def delTicket(request):
     return getResult(True, '', None)
 
 
-
 def getAllBusiness(request):
     cachename = 'allbussiness'
     taxkindstr = cache.get(cachename)
@@ -72,8 +70,10 @@ def getAllBusiness(request):
     kindidlist = []
     kinddict = {}
     for business in Business.objects.all().order_by('id'):
-        kinddict['%s' % business.pk] = {'id': business.pk, 'num':business.num,  'type': 'business', 'fatherid': business.fatherBusiness_id,
-                                    'name': business.name, 'children': []}
+        kinddict['%s' % business.pk] = {'id': business.pk, 'num': business.num, 'ywbh': business.ywbh(),
+                                        'businessname': '[%s] %s' % (business.ywbh(), business.name) , 'type': 'business',
+                                        'fatherid': business.fatherBusiness_id,
+                                        'name': business.name, 'children': []}
         kindidlist.append(business.pk)
     for kid in kindidlist:
         kind = kinddict.get(str(kid))
@@ -127,7 +127,7 @@ def getAllKM(request):
     kinddict = {}
     for km in KM.objects.all().order_by('id'):
         kinddict['%s' % km.pk] = {'id': km.pk, 'type': 'km', 'fatherid': km.fatherKM_id,
-                                    'name': km.name, 'children': []}
+                                  'name': km.name, 'children': []}
         kindidlist.append(km.pk)
     for kid in kindidlist:
         kind = kinddict.get(str(kid))
@@ -176,8 +176,9 @@ def getRule(request):
 
     return getResult(True, '', l)
 
+
 def getTicketByRule(request):
-    ruleid = request.REQUEST.get('ruleid','')
+    ruleid = request.REQUEST.get('ruleid', '')
     ids = []
     for t in Relation.objects.filter(rule=ruleid):
         ids.append(t.ticket_id)
@@ -187,23 +188,25 @@ def getTicketByRule(request):
 
     return getResult(True, '', l)
 
+
 def getBusinessByTicket(request):
-    ruleid = request.REQUEST.get('ruleid','')
-    ticketid = request.REQUEST.get('ticketid','')
+    ruleid = request.REQUEST.get('ruleid', '')
+    ticketid = request.REQUEST.get('ticketid', '')
     ids = []
-    for t in Relation.objects.filter(rule=ruleid,ticket=ticketid):
+    for t in Relation.objects.filter(rule=ruleid, ticket=ticketid):
         ids.append(t.business_id)
     l = []
     for u in Business.objects.filter(pk__in=ids):
         l.append({'name': u.name, 'id': u.pk})
     return getResult(True, '', l)
 
+
 def getKMByBusiness(request):
-    ruleid = request.REQUEST.get('ruleid','')
-    ticketid = request.REQUEST.get('ticketid','')
-    businessid = request.REQUEST.get('businessid','')
+    ruleid = request.REQUEST.get('ruleid', '')
+    ticketid = request.REQUEST.get('ticketid', '')
+    businessid = request.REQUEST.get('businessid', '')
     ids = []
-    for t in Relation.objects.filter(rule=ruleid,ticket=ticketid,business=businessid):
+    for t in Relation.objects.filter(rule=ruleid, ticket=ticketid, business=businessid):
         ids.append(t.km_id)
     l = []
     for u in KM.objects.filter(pk__in=ids):
@@ -211,21 +214,22 @@ def getKMByBusiness(request):
 
     return getResult(True, '', l)
 
-def getKJZDByKM(request):
-    ruleid = request.REQUEST.get('ruleid','')
-    ticketid = request.REQUEST.get('ticketid','')
-    businessid = request.REQUEST.get('businessid','')
-    kjkmid = request.REQUEST.get('kjkmid','')
 
-    if Relation.objects.filter(rule=ruleid,ticket=ticketid,business=businessid,km=kjkmid).count()!=0:
-        r = Relation.objects.get(rule=ruleid,ticket=ticketid,business=businessid,km=kjkmid)
-        kjzdlist=[]
-        sflist=[]
+def getKJZDByKM(request):
+    ruleid = request.REQUEST.get('ruleid', '')
+    ticketid = request.REQUEST.get('ticketid', '')
+    businessid = request.REQUEST.get('businessid', '')
+    kjkmid = request.REQUEST.get('kjkmid', '')
+
+    if Relation.objects.filter(rule=ruleid, ticket=ticketid, business=businessid, km=kjkmid).count() != 0:
+        r = Relation.objects.get(rule=ruleid, ticket=ticketid, business=businessid, km=kjkmid)
+        kjzdlist = []
+        sflist = []
 
         for kjzd in r.kjzds.all():
             kjzdlist.append(kjzd.name)
         for sf in r.sf.all():
             sflist.append(sf.name)
-        return getResult(True,'', {'kjzd':'\n'.join(kjzdlist),'sf':'\n'.join(sflist)})
+        return getResult(True, '', {'kjzd': '\n'.join(kjzdlist), 'sf': '\n'.join(sflist)})
     else:
-        return getResult(True,'',{'kjzd':'无','sf':'无'})
+        return getResult(True, '', {'kjzd': '无', 'sf': '无'})

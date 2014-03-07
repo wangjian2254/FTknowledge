@@ -18,19 +18,26 @@ def index(request):
 
 
 def menu(request):
+    '''
+     <menuitem label='分类管理' mod='taxkind'></menuitem>
+				    <menuitem label='报表管理' mod='bbedit'></menuitem>
+
+				    <menuitem label='知识库编辑' mod='knowledgeedit'></menuitem>
+				    <menuitem label='知识库查询' mod='knowledgequery'></menuitem>
+    '''
     menuxml = '''
     <?xml version='1.0' encoding='utf-8'?>
 			<root>
 				<menu mod='myMenu1' label='基础管理'>
 
-				    <menuitem label='分类管理' mod='taxkind'></menuitem>
-				    <menuitem label='报表管理' mod='bbedit'></menuitem>
+				    <menuitem label='票据管理' mod='ticketedit'></menuitem>
+				    <menuitem label='业务管理' mod='businessedit'></menuitem>
+
 				    <menuitem label='用户管理' mod='people'></menuitem>
 
 				</menu>
 				<menu mod='myMenu2' label='知识库'>
-				    <menuitem label='知识库编辑' mod='knowledgeedit'></menuitem>
-				    <menuitem label='知识库查询' mod='knowledgequery'></menuitem>
+
 				    <menuitem label='查询' mod='autokjedit'></menuitem>
 
 				</menu>
