@@ -78,8 +78,9 @@ class BBFieldValue(models.Model):
 
 class PZ(models.Model):
 
-    relations = models.ForeignKey('Relation')
+    business = models.ForeignKey('Business')
     user = models.ForeignKey(User, verbose_name=u'创建者')
+    desc = models.TextField(verbose_name=u'简介')
     is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
 
 

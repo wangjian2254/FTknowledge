@@ -77,6 +77,10 @@ def getAllBusiness(request):
                                         'businessname': '[%s] %s' % (business.ywbh(), business.name) , 'type': 'business',
                                         'fatherid': business.fatherBusiness_id,
                                         'name': business.name, 'children': []}
+        # pzlist = []
+        # for pz in business.pz_set.filter(is_active=True).all():
+        #     pzlist.append(pz.pk)
+        # kinddict['%s' % business.pk]['pzlist']=pzlist
         kindidlist.append(business.pk)
     for kid in kindidlist:
         kind = kinddict.get(str(kid))
@@ -252,14 +256,14 @@ def getKJZDByKM(request):
         r = Relation.objects.get(rule=ruleid, ticket=ticketid, business=businessid)
         kjzdlist = []
         sflist = []
-        pzlist = []
+        # pzlist = []
         for kjzd in r.kjzds.all():
             kjzdlist.append(kjzd.name)
         for sf in r.sf.all():
             sflist.append(sf.name)
-        for pz in r.pz_set.all():
-            pzlist.append(pz.pk)
-        return getResult(True, '', {'kjzd': '\n'.join(kjzdlist), 'sf': '\n'.join(sflist), 'pz':pzlist, 'id':r.pk})
+        # for pz in r.pz_set.all():
+        #     pzlist.append(pz.pk)
+        return getResult(True, '', {'kjzd': '\n'.join(kjzdlist), 'sf': '\n'.join(sflist), 'id':r.pk})
     else:
         return getResult(True, '', {'kjzd': '', 'sf': ''})
 
@@ -396,21 +400,32 @@ def getBusinessByUserRule(request):
             del kind['children']
     return getResult(True, '', kindlist)
 
+def getPZbyBusiness(request):
+    bid = request.REQUEST.get('bid')
+    pzlist = []
+    for pz in PZ.objects.filter(business=bid):
+        pzlist.append(pz.pk)
+    return getResult(True,'',pzlist)
+
 def getPZ(request):
     pzid = request.REQUEST.get('pzid','')
+    result = {'fllist':[],'pzdesc':''}
     if pzid:
         fllist=[]
         for fl in FL.objects.filter(pz=pzid).order_by('id'):
             fllist.append({'kjkm':fl.kmmc_id, 'fx':fl.fx, 'id':fl.pk})
-        return getResult(True,'',fllist)
+        result['fllist']=fllist
+        result['pzdesc']= PZ.objects.get(pk=pzid).desc
+        return getResult(True,'',result)
     else:
-        return getResult(True,'',[])
+        return getResult(True,'',result)
 
 def savePZ(request):
-    rid = request.REQUEST.get('rid','')
+    cache.delete('allbussiness')
+    bid = request.REQUEST.get('bid','')
     pzid = request.REQUEST.get('pzid','')
     fl = request.REQUEST.get('fl','')
-    if rid:
+    if bid:
         if pzid:
             if not fl:
                 PZ.objects.get(pk=pzid).delete()
@@ -419,9 +434,11 @@ def savePZ(request):
                 pz = PZ.objects.get(pk=pzid)
         else:
             pz = PZ()
-            pz.relations = Relation.objects.get(pk=rid)
+            pz.business = Business.objects.get(pk=bid)
             pz.user = request.user
             pz.save()
+        pz.desc = request.REQUEST.get('desc','')
+        pz.save()
         fllist = json.loads(fl)
         for fl in fllist:
             if fl.has_key('id'):
@@ -432,4 +449,4 @@ def savePZ(request):
             f.kmmc = KM.objects.get(pk=fl.get('kjkm'))
             f.fx = fl.get('fx')
             f.save()
-        return getResult(True,'',{'pzid':pz.pk,'rid':pz.relations_id})
+        return getResult(True,'',{'pzid':pz.pk,'bid':pz.business_id})
