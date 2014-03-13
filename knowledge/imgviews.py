@@ -15,6 +15,7 @@ def delImg(request):
         else:
             for img in  ImageInfo.objects.filter(img__iendswith = imgurl.split('/')[-1]):
                 cache.delete('all%s'%img.modelType)
+                img.img.delete()
                 img.delete()
             return getResult(True,'')
     return getResult(False,'')

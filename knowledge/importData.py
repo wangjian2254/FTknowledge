@@ -12,16 +12,20 @@ def initKJKM(request):
     kmdict = {}
     for kjkm in kjkmlist:
         try:
-            if not kjkm.get('fatherid',''):
-                km = KM()
-                km.name = '%s:%s'%(kjkm.get('kmbh',''), kjkm.get('kmmc',''))
-                km.save()
-                kmdict[kjkm.get('kmbh','')] = km
-            else:
-                km = KM()
-                km.name = '%s:%s'%(kjkm.get('kmbh',''), kjkm.get('kmmc',''))
-                km.fatherKM = kmdict[kjkm.get('fatherid','')]
-                km.save()
+            km = KM()
+            km.name = '%s:%s'%(kjkm.get('kmbh',''), kjkm.get('kmmc',''))
+            # km.fatherKM = kmdict[kjkm.get('fatherid','')]
+            km.save()
+            # if not kjkm.get('fatherid',''):
+            #     km = KM()
+            #     km.name = '%s:%s'%(kjkm.get('kmbh',''), kjkm.get('kmmc',''))
+            #     km.save()
+            #     kmdict[kjkm.get('kmbh','')] = km
+            # else:
+            #     km = KM()
+            #     km.name = '%s:%s'%(kjkm.get('kmbh',''), kjkm.get('kmmc',''))
+            #     km.fatherKM = kmdict[kjkm.get('fatherid','')]
+            #     km.save()
         except:
             pass
 

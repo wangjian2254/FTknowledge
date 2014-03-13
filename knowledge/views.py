@@ -25,25 +25,37 @@ def menu(request):
 				    <menuitem label='知识库编辑' mod='knowledgeedit'></menuitem>
 				    <menuitem label='知识库查询' mod='knowledgequery'></menuitem>
     '''
-    menuxml = '''
-    <?xml version='1.0' encoding='utf-8'?>
-			<root>
-				<menu mod='myMenu1' label='基础管理'>
+    if request.user.is_staff:
+        menuxml = '''
+        <?xml version='1.0' encoding='utf-8'?>
+                <root>
+                    <menu mod='myMenu1' label='基础管理'>
 
-				    <menuitem label='票据管理' mod='ticketedit'></menuitem>
-				    <menuitem label='业务管理' mod='businessedit'></menuitem>
+                        <menuitem label='票据管理' mod='ticketedit'></menuitem>
+                        <menuitem label='业务管理' mod='businessedit'></menuitem>
 
-				    <menuitem label='用户管理' mod='people'></menuitem>
+                        <menuitem label='用户管理' mod='people'></menuitem>
 
-				</menu>
-				<menu mod='myMenu2' label='知识库'>
+                    </menu>
+                    <menu mod='myMenu2' label='知识库'>
 
-				    <menuitem label='查询' mod='autokjedit'></menuitem>
+                        <menuitem label='查询' mod='autokjquery'></menuitem>
+                        <menuitem label='定义' mod='autokjedit'></menuitem>
 
-				</menu>
+                    </menu>
 
-			</root>
-    '''
+                </root>
+        '''
+    else:
+        menuxml = '''
+        <?xml version='1.0' encoding='utf-8'?>
+                <root>
+                    <menu mod='myMenu2' label='知识库'>
+                        <menuitem label='查询' mod='autokjquery'></menuitem>
+                    </menu>
+
+                </root>
+        '''
     return HttpResponse(menuxml)
 
 
@@ -92,7 +104,7 @@ def saveUser(request):
     if id:
         user = User.objects.get(pk=id)
     else:
-        user = User
+        user = User()
         user.set_password('111111')
         user.username = request.REQUEST.get('username', '')
         if not user.username or User.objects.filter(username=user.username).count() > 0:

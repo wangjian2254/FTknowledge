@@ -78,21 +78,19 @@ class BBFieldValue(models.Model):
 
 class PZ(models.Model):
 
-    kjkm = models.ManyToManyField(KJKMTicket)
+    relations = models.ForeignKey('Relation')
     user = models.ForeignKey(User, verbose_name=u'创建者')
-    name = models.CharField(max_length=20, db_index=True, blank=True, null=True, verbose_name=u'凭证名称')
-    desc = models.CharField(max_length=1000,  blank=True, null=True, verbose_name=u'凭证备注')
     is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
 
 
 class FL(models.Model):
     FX = ((u'借', True), (u'贷', False))
     pz = models.ForeignKey(PZ)
-    kmmc = models.CharField(max_length=250, db_index=True, blank=True, null=True, verbose_name=u'科目名称',
+    kmmc = models.ForeignKey('KM', db_index=True, blank=True, null=True, verbose_name=u'科目名称',
                             help_text=u'分录科目名称')
-    zy = models.CharField(max_length=100, db_index=True, blank=True, null=True, verbose_name=u'摘要')
+    # zy = models.CharField(max_length=100, db_index=True, blank=True, null=True, verbose_name=u'摘要')
     fx = models.BooleanField(default=True, choices=FX, verbose_name=u'方向', help_text=u'借正贷负')
-    desc = models.CharField(max_length=1000,  blank=True, null=True, verbose_name=u'凭证备注')
+    # desc = models.CharField(max_length=1000,  blank=True, null=True, verbose_name=u'凭证备注')
 
 
 class Replay(models.Model):
@@ -124,6 +122,7 @@ class Rule(models.Model):
 
 class Ticket(models.Model):
     name = models.CharField(max_length=200,db_index=True, unique=True,verbose_name=u'票据名称')
+    desc = models.CharField(max_length=4000, blank=True, null=True, verbose_name=u'票据名称')
     fatherTicket = models.ForeignKey('Ticket', blank=True, null=True)
 
     def getImgs(self):
@@ -157,7 +156,7 @@ class Business(models.Model):
 
 class KM(models.Model):
     name = models.CharField(max_length=200,db_index=True, unique=True,verbose_name=u'会计科目')
-    fatherKM = models.ForeignKey('KM', blank=True, null=True)
+    # fatherKM = models.ForeignKey('KM', blank=True, null=True)
     class Meta():
         verbose_name=u'会计科目'
         verbose_name_plural=u'会计科目列表'
@@ -182,18 +181,19 @@ class SF(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name,)
 
+
 class Relation(models.Model):
     rule = models.ForeignKey(Rule)
     ticket = models.ForeignKey(Ticket)
     business = models.ForeignKey(Business)
-    km = models.ForeignKey(KM)
+    # km = models.ForeignKey(KM)
     kjzds = models.ManyToManyField(KJZD)
     sf = models.ManyToManyField(SF)
 
     class Meta():
         verbose_name=u'关系'
         verbose_name_plural=u'关系列表'
-        unique_together =(('rule','ticket','business','km'),)
+        unique_together =(('rule','ticket','business'),)
 
     def __unicode__(self):
         return u'%s_%s_%s_%s' % (self.rule.name,self.ticket.name,self.business.name,self.km.name,)
