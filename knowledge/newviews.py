@@ -440,6 +440,7 @@ def savePZ(request):
         pz.desc = request.REQUEST.get('desc','')
         pz.save()
         fllist = json.loads(fl)
+        flids=[]
         for fl in fllist:
             if fl.has_key('id'):
                 f = FL.objects.get(pk=fl.get('id'))
@@ -449,4 +450,6 @@ def savePZ(request):
             f.kmmc = KM.objects.get(pk=fl.get('kjkm'))
             f.fx = fl.get('fx')
             f.save()
+            flids.append(f.pk)
+        FL.objects.exclude(pk__in=flids).filter(pz=pz).delete()
         return getResult(True,'',{'pzid':pz.pk,'bid':pz.business_id})
