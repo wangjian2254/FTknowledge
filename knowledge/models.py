@@ -83,6 +83,10 @@ class PZ(models.Model):
     desc = models.TextField(verbose_name=u'简介')
     is_active = models.BooleanField(default=True, db_index=True, verbose_name=u'可用')
 
+    def getImg(self):
+        for img in ImageInfo.objects.filter(modelType='pz',modelId=self.pk).order_by('id')[:1]:
+            return img.img.url
+        return ''
 
 class FL(models.Model):
     FX = ((u'借', True), (u'贷', False))
@@ -91,6 +95,8 @@ class FL(models.Model):
                             help_text=u'分录科目名称')
     # zy = models.CharField(max_length=100, db_index=True, blank=True, null=True, verbose_name=u'摘要')
     fx = models.BooleanField(default=True, choices=FX, verbose_name=u'方向', help_text=u'借正贷负')
+    num=models.DecimalField(max_digits=8,decimal_places=2,blank=True,null=True)
+    zy=models.TextField(blank=True,null=True,verbose_name=u'摘要')
     # desc = models.CharField(max_length=1000,  blank=True, null=True, verbose_name=u'凭证备注')
 
 

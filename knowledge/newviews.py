@@ -362,13 +362,17 @@ def getTicketByUserRule(request):
     for kind in kinddict.values():
         if len(kind['children']) == 0:
             del kind['children']
-    return getResult(True, '', kindlist)
+    l=[]
+    for k in kinddict.values():
+        if not hasattr(k,'children'):
+            l.append(k)
+    return getResult(True, '', {"kindlist":kindlist,"kindalllist":l})
 
 
 
 def businessFather(business,bussinessdict,businesslist):
 
-    bussinessdict['%s' % business.pk] = {'id': business.pk, 'num': business.num, 'ywbh': business.ywbh(),
+    bussinessdict['%s' % business.pk] = {'id': business.pk, 'num': business.num, 'ywbh': business.ywbh(), 'businessText':business.name,
                                         'businessname': '[%s] %s' % (business.ywbh(), business.name) , 'type': 'business',
                                         'fatherid': business.fatherBusiness_id,
                                         'name': business.name, 'children': []}
@@ -415,7 +419,9 @@ def getPZ(request):
         for fl in FL.objects.filter(pz=pzid).order_by('id'):
             fllist.append({'kjkm':fl.kmmc_id, 'fx':fl.fx, 'id':fl.pk})
         result['fllist']=fllist
-        result['pzdesc']= PZ.objects.get(pk=pzid).desc
+        pz=PZ.objects.get(pk=pzid)
+        result['pzdesc']= pz.desc
+        result['imgurl']= pz.getImg()
         return getResult(True,'',result)
     else:
         return getResult(True,'',result)

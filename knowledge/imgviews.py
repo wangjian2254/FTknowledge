@@ -31,4 +31,6 @@ def imgUploaded(request):
         imginfo.save()
         cache.delete('all%s'%imginfo.modelType)
 
-    return getResult(True,u'上传成功',imginfo.img.url)
+        return getResult(True,u'上传成功',imginfo.img.url)
+    else:
+        return getResult(False,'',None)
