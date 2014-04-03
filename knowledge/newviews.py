@@ -417,11 +417,20 @@ def getPZ(request):
     if pzid:
         fllist=[]
         for fl in FL.objects.filter(pz=pzid).order_by('id'):
-            fllist.append({'kjkm':fl.kmmc_id, 'fx':fl.fx, 'id':fl.pk})
+            f={'kjkm':fl.kmmc_id, 'fx':fl.fx, 'id':fl.pk, 'zy':fl.zy}
+            if fl.fx:
+                f['jje'] = str(fl.num)
+                if not fl.num:
+                    f['jje']=0
+            else:
+                f['dje'] = str(fl.num)
+                if not fl.num:
+                    f['dje']=0
+            fllist.append(f)
         result['fllist']=fllist
         pz=PZ.objects.get(pk=pzid)
         result['pzdesc']= pz.desc
-        result['imgurl']= pz.getImg()
+        # result['imgurl']= pz.getImg()
         return getResult(True,'',result)
     else:
         return getResult(True,'',result)
@@ -457,6 +466,11 @@ def savePZ(request):
                 f.pz = pz
             f.kmmc = KM.objects.get(pk=fl.get('kjkm'))
             f.fx = fl.get('fx')
+            f.zy = fl.get('zy')
+            if fl.get('fx'):
+                f.num = fl.get('jje',0)
+            else:
+                f.num = fl.get('dje',0)
             f.save()
             flids.append(f.pk)
         if len(flids)>0:

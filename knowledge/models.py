@@ -145,7 +145,7 @@ class Ticket(models.Model):
         return u'%s' % (self.name,)
 
 class Business(models.Model):
-    name = models.CharField(max_length=200,db_index=True, unique=True,verbose_name=u'业务名称')
+    name = models.CharField(max_length=200,db_index=True, verbose_name=u'业务名称')
     num = models.CharField(max_length=3,verbose_name=u'业务号')
     fatherBusiness = models.ForeignKey('Business', blank=True, null=True)
 
