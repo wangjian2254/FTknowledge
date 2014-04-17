@@ -189,6 +189,16 @@ class SF(models.Model):
         return u'%s' % (self.name,)
 
 
+class SSTS(models.Model):
+    name = models.CharField(max_length=2000, verbose_name=u'税法')
+    fatherSSTS = models.ForeignKey('SSTS', blank=True, null=True)
+    class Meta():
+        verbose_name=u'涉税提示'
+        verbose_name_plural=u'涉税提示列表'
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+
 class Relation(models.Model):
     rule = models.ForeignKey(Rule)
     ticket = models.ForeignKey(Ticket)
@@ -196,6 +206,7 @@ class Relation(models.Model):
     # km = models.ForeignKey(KM)
     kjzds = models.ManyToManyField(KJZD)
     sf = models.ManyToManyField(SF)
+    ssts = models.ManyToManyField(SSTS,blank=True,null=True)
 
     class Meta():
         verbose_name=u'关系'

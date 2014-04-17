@@ -3,7 +3,7 @@
 #Time: 下午10:28
 import json
 from django.http import HttpResponse
-from knowledge.models import Rule, Ticket, Relation, Business, KM, KJZD, SF, FL, PZ
+from knowledge.models import Rule, Ticket, Relation, Business, KM, KJZD, SF, FL, PZ, SSTS
 from knowledge.tools import getResult
 from django.core.cache import cache
 
@@ -256,16 +256,16 @@ def getKJZDByKM(request):
         r = Relation.objects.get(rule=ruleid, ticket=ticketid, business=businessid)
         kjzdlist = []
         sflist = []
-        # pzlist = []
+        sstslist = []
         for kjzd in r.kjzds.all():
             kjzdlist.append(kjzd.name)
         for sf in r.sf.all():
             sflist.append(sf.name)
-        # for pz in r.pz_set.all():
-        #     pzlist.append(pz.pk)
-        return getResult(True, '', {'kjzd': '\n'.join(kjzdlist), 'sf': '\n'.join(sflist), 'id':r.pk})
+        for ssts in r.ssts.all():
+            sstslist.append(ssts.name)
+        return getResult(True, '', {'kjzd': '\n'.join(kjzdlist), 'sf': '\n'.join(sflist), 'ssts':'\n'.join(sstslist),  'id':r.pk})
     else:
-        return getResult(True, '', {'kjzd': '', 'sf': ''})
+        return getResult(True, '', {'kjzd': '', 'sf': '', 'ssts':''})
 
 
 def saveRelation(request):
@@ -274,6 +274,7 @@ def saveRelation(request):
     businessid = request.REQUEST.get('businessid', '')
     kjzdstr = request.REQUEST.get('kjzd', '')
     sfstr = request.REQUEST.get('sf', '')
+    sstsstr = request.REQUEST.get('ssts', '')
     if Relation.objects.filter(rule=ruleid, ticket=ticketid, business=businessid).count() != 0:
         r = Relation.objects.get(rule=ruleid, ticket=ticketid, business=businessid)
         kjzdlist = []
@@ -297,6 +298,15 @@ def saveRelation(request):
             sf.save()
             r.sf.add(sf)
             r.save()
+        for ssts in r.ssts.all():
+            ssts.name=sstsstr
+            ssts.save()
+        if r.ssts.count()==0:
+            ssts = SSTS()
+            ssts.name = sstsstr
+            ssts.save()
+            r.ssts.add(ssts)
+            r.save()
         return getResult(True, u'修改成功',r.pk)
     else:
         r = Relation()
@@ -315,6 +325,11 @@ def saveRelation(request):
         sf.name = sfstr
         sf.save()
         r.sf.add(sf)
+
+        ssts = SSTS()
+        ssts.name = sstsstr
+        ssts.save()
+        r.ssts.add(ssts)
         r.save()
 
         return getResult(True, u'保存成功',r.pk)
