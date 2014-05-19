@@ -8,11 +8,11 @@ __author__ = u'王健'
 from django.contrib import admin
 
 # admin.site.register(Group)
-admin.site.register(Rule)
-admin.site.register(Ticket)
-admin.site.register(Business)
+# admin.site.register(Rule)
+# admin.site.register(Ticket)
+# admin.site.register(Business)
 admin.site.register(KM)
-admin.site.register(KJZD)
-admin.site.register(SF)
-admin.site.register(Relation)
+# admin.site.register(KJZD)
+# admin.site.register(SF)
+# admin.site.register(Relation)
 
