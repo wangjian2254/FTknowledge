@@ -61,6 +61,9 @@ urlpatterns = patterns('knowledge',
     url(r'^imgUploaded', 'imgviews.imgUploaded'),
     url(r'^delImg', 'imgviews.delImg'),
 
+
+    url(r'^tongji', 'tongji_view.tongji'),
+
     # url(r'^FTknowledge/', include('FTknowledge.foo.urls')),
 
 
