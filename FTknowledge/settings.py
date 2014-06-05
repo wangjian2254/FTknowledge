@@ -1,7 +1,7 @@
 # Django settings for FTknowledge project.
 import os
 os.environ['LANG'] = 'en_US.UTF-8'
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -69,7 +69,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # ("upload", os.path.join(STATIC_ROOT,'upload')),
+    ("image", os.path.join(STATIC_ROOT,'image')),
     ("swf", os.path.join(STATIC_ROOT,'swf')),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
@@ -126,6 +126,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'knowledge',
+    'taxcreate',
 )
 
 # A sample logging configuration. The only tangible logging
