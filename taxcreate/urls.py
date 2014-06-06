@@ -10,13 +10,15 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('taxcreate',
     # Examples:
-
+    url(r'^showTaxImage', 'views.showTaxImage'),
+    url(r'^saveRuleItem', 'views.saveRuleItem'),
     url(r'^taxTemplateUploaded', 'views.taxTemplateUploaded'),
     url(r'^getTemplateList', 'views.getTemplateList'),
     url(r'^getRuleByTemplateList', 'views.getRuleByTemplateList'),
     url(r'^getRuleItemByRuleList', 'views.getRuleItemByRuleList'),
     url(r'^saveRule', 'views.saveRule'),
     url(r'^saveTemplate', 'views.saveTemplate'),
+
 
 
 
