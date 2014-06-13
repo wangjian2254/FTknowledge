@@ -45,9 +45,10 @@ def menu(request):
                     </menu>
 
                     <menu mod='myMenu3' label='票据生成'>
-
                         <menuitem label='票据定义' mod='taximagecreate'></menuitem>
-
+                    </menu>
+                    <menu mod='myMenu3' label='考试'>
+                        <menuitem label='考试' mod='kaoshi'></menuitem>
                     </menu>
 
                 </root>
