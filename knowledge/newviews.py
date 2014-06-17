@@ -2,10 +2,13 @@
 #Date: 11-12-8
 #Time: 下午10:28
 import json
+
 from django.http import HttpResponse
-from knowledge.models import Rule, Ticket, Relation, Business, KM, KJZD, SF, FL, PZ, SSTS
-from knowledge.tools import getResult
 from django.core.cache import cache
+
+from knowledge.models import Rule, Ticket, Relation, Business, KM, KJZD, SF, FL, PZ, SSTS
+from util.tools import getResult
+
 
 __author__ = u'王健'
 

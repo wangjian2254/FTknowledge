@@ -2,7 +2,7 @@
 #Date: 11-12-8
 #Time: 下午10:28
 from knowledge.models import Ticket
-from knowledge.tools import getResult
+from util.tools import getResult
 
 __author__ = u'王健'
 
@@ -31,7 +31,7 @@ def initData(request):
         xls = '../static/data.xls'
     else:
         from FTknowledge.settings import STATIC_ROOT
-        from models import Group, TaxKind, TaxTicket, BBField, BB,BBFieldValue, KJKM, KJKMTicket
+        from models import Group, TaxKind, TaxTicket, BBField, BBFieldValue, KJKM, KJKMTicket
         xls = '%s/data.xls'%STATIC_ROOT
         bbdict = {}
         s=u'关联增值税报表主表 关联增值税报表主表一 关联增值税报表主表二 固定资产抵扣 关联企业所得税主表 关联税收优惠明细表 关联所得税与流转税对比表 关联财务报表利润表'

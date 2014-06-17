@@ -1,10 +1,11 @@
 #coding=utf-8
 #Date: 11-12-8
 #Time: 下午10:28
-from knowledge.models import ImageInfo
-from knowledge.tools import getResult
 from django.core.cache import cache
-import datetime
+
+from knowledge.models import ImageInfo
+from util.tools import getResult
+
 __author__ = u'王健'
 
 def delImg(request):

@@ -2,7 +2,7 @@
 #Date: 11-12-8
 #Time: 下午10:28
 from django.http import HttpResponse
-from knowledge.tools import getResult
+from util.tools import getResult
 from taxcreate.models import TaxTemplate, TaxRule, RuleItem
 
 __author__ = u'王健'

@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.core.cache import cache
 from django.shortcuts import render_to_response
-from tools import getResult, clearTicketCache
+from util.tools import getResult, clearTicketCache
 from models import Group, TaxKind, TaxTicket, BBField, BB, KJKMTicket, KJKM, BBFieldValue
 
 
@@ -48,6 +48,8 @@ def menu(request):
                         <menuitem label='票据定义' mod='taximagecreate'></menuitem>
                     </menu>
                     <menu mod='myMenu3' label='考试'>
+                        <menuitem label='试卷' mod='paper'></menuitem>
+                        <menuitem label='题库' mod='subject'></menuitem>
                         <menuitem label='考试' mod='kaoshi'></menuitem>
                     </menu>
 
