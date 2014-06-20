@@ -75,9 +75,8 @@ class Subject(models.Model):
     '''
     title = models.CharField(max_length=2000, verbose_name=u'题目', help_text=u'选择题题目')
     bz = models.CharField(max_length=1000,blank=True, null=True,verbose_name=u'备注',help_text=u'正确答案的解释')
-    img = models.ImageField(upload_to='sub/',blank=True, null=True,verbose_name=u'票据图片位置')
     type = models.IntegerField(default=1,verbose_name=u'题型',help_text=u'1:选择题,2:凭证录入题')
-    ruleitem = models.ForeignKey(RuleItem,null=True,blank=True,verbose_name=u'自定义票据',help_text=u'自定义票据规则')
+    rule = models.ForeignKey(TaxRule,null=True,blank=True,verbose_name=u'自定义票据',help_text=u'自定义票据规则')
 
     def __unicode__(self):
         return self.title

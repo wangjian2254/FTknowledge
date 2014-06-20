@@ -103,6 +103,12 @@ def getRuleItemByRuleList(request):
 
     return getResult(True,u'获取规则细则成功',l)
 
+def delRuleItemByids(request):
+    ruleitemids = request.REQUEST.getlist('ruleitemids')
+    RuleItem.objects.filter(pk__in=ruleitemids).delete()
+
+    return getResult(True,u'删除成功',ruleitemids)
+
 def showTaxImage(request):
     from PIL import Image,ImageDraw,ImageFont
     ruleid = request.REQUEST.get('ruleid','')

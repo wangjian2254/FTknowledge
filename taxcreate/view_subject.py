@@ -19,8 +19,8 @@ def updateSubject(request):
     if not kindForm.is_valid():
         msg = kindForm.json_error()
         return getResult(False, msg, None)
-    if not kindForm.instance.accuracy:
-        kindForm.instance.accuracy = 0.0
+    #if not kindForm.instance.accuracy:
+    #    kindForm.instance.accuracy = 0.0
     kind = kindForm.save()
     for i in range(20):
         id = request.REQUEST.get("option_id_%s" % i, None)
@@ -41,6 +41,21 @@ def updateSubject(request):
             option.save()
 
     return getResult(True, u'保存试题信息成功', kind.pk)
+
+def getOptionBySubject(request):
+    sid = request.REQUEST.get('sid',None)
+    if sid:
+        subject = Subject.objects.get(pk=sid)
+        options = MyEncoder.default(subject.option_set.all())
+        if subject.rule_id:
+            templateid = subject.rule.taxtemplate_id
+            ruleid = subject.rule_id
+        else:
+            templateid =None
+            ruleid = None
+        return getResult(True,u'获取试题信息',{'sid':sid,'options':options,'templateid':templateid,'ruleid':ruleid})
+    else:
+        return getResult(False,u'获取试题信息失败，需要试题id',None)
 
 
 def getSubjectByKind(request):

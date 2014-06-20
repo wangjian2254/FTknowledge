@@ -38,7 +38,28 @@ class MyEncoder(simplejson.JSONEncoder):
     """ 继承自simplejson的编码基类，用于处理复杂类型的编码
     """
     @staticmethod
-    def default(obj):
+    def default( obj):
+        if isinstance(obj,QuerySet):
+            l = []
+            for o in MyEncoder.obj2json(obj):
+                o.update(o['fields'])
+                o['id'] = o['pk']
+                del o['fields']
+                l.append(o)
+            return l
+        if isinstance(obj,models.Model):
+            o = MyEncoder.obj2json(obj)
+            o.update(o['fields'])
+            o['id'] = o['pk']
+            del o['fields']
+            return o
+        if hasattr(obj, 'isoformat'):
+            #处理日期类型
+            return obj.isoformat()
+        return None
+
+    @staticmethod
+    def obj2json(obj):
         if isinstance(obj,QuerySet):
             """ Queryset实例
             直接使用Django内置的序列化工具进行序列化

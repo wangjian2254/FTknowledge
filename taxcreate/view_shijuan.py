@@ -63,21 +63,32 @@ def updatePaper(request):
     return getResult(True,u'保存分类信息成功', paper.pk)
 
 
+def getSubjectByPaper(request):
+    pid = request.REQUEST.get('pid')
+    if pid:
+        paper = Paper.objects.get(pk=pid)
+        subjects = MyEncoder.default(paper.subjects.all())
+
+        return getResult(True,u'获取到试题成功',subjects)
+    else:
+        return getResult(False,u'获取试题失败，请提供试卷id',None)
 
 def doPaperSubject(request):
     '''
     管理试卷的试题
     '''
-    subjectids = request.REQUEST.getlist('sid')
+    subjectid = request.REQUEST.get('sid')
     paperid = request.REQUEST.get('pid')
     do = request.REQUEST.get('do')
     paper = Paper.objects.get(pk=paperid)
     if do == 'add':
-        paper.subjects.add(*Subject.objects.filter(pk__in=subjectids))
-        return getResult(True,u'添加试题成功',None)
+        if paper.subjects.filter(id=subjectid).count()>0:
+            return getResult(False,u'已经添加过了。',None)
+        paper.subjects.add(*Subject.objects.filter(pk=subjectid))
+        return getResult(True,u'添加试题成功',subjectid)
     else:
-        paper.subjects.remove(*Subject.objects.filter(pk__in=subjectids))
-        return getResult(True,u'移除试题成功',None)
+        paper.subjects.remove(*Subject.objects.filter(pk=subjectid))
+        return getResult(True,u'移除试题成功',subjectid)
 
 
 def delPaper(request):
