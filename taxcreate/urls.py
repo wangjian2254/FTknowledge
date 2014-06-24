@@ -36,6 +36,7 @@ urlpatterns = patterns('taxcreate',
                        url(r'^getAllPaper', 'view_shijuan.getAllPaper'),
                        url(r'^delPaper', 'view_shijuan.delPaper'),
                        url(r'^copyPaper', 'view_shijuan.copyPaper'),
+                       url(r'^doRightPaper', 'view_shijuan.doRightPaper'),
 
 
 )

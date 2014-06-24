@@ -147,3 +147,9 @@ def copyPaper(request):
     '''
     return getResult(True, '', None)
 
+def doRightPaper(request):
+    '''
+    生成标准账套
+    '''
+
+    return getResult(True,u'结果',None)
