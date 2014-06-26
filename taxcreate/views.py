@@ -134,11 +134,22 @@ def delRuleItemByids(request):
 def showTaxImage(request):
     from PIL import Image,ImageDraw,ImageFont
     ruleid = request.REQUEST.get('ruleid','')
+    flag = request.REQUEST.get('flag','0')
     if ruleid:
         rule = TaxRule.objects.get(pk=ruleid)
         temp = rule.taxtemplate
         tempimg = Image.open(temp.img.path)
         d = ImageDraw.Draw(tempimg)
+        if flag=='1':
+            w,h = tempimg.size
+            f = ImageFont.truetype('msyh.ttf',15)
+            for x in range(50,w,50):
+                d.line([(x,0),(x,h)],0,2)
+                d.text((x,0),'%s'%x,(0,0,0),font=f)
+            for y in range(50,h,50):
+                d.line([(0,y),(w,y)],0,2)
+                d.text((0,y),'%s'%y,(0,0,0),font=f)
+
         for r in RuleItem.objects.filter(rule=rule).order_by('index'):
             font = ImageFont.truetype('msyh.ttf',r.size)
             c =('%06x'%r.color)

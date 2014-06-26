@@ -1,6 +1,9 @@
 #coding=utf-8
 #Date:14-6-17
 #Email:wangjian2254@gmail.com
+import datetime
+import json
+from FTknowledge.projectsettings import YSX_URL_SET_RIGHT_ZT, YSX_URL
 from util.tools import getResult, MyEncoder
 from taxcreate.forms import PaperForm
 from taxcreate.models import Paper, Subject
@@ -156,5 +159,27 @@ def doRightPaper(request):
     '''
     生成标准账套
     '''
+    import urllib
+    import urllib2
+    id = request.REQUEST.get('id', '')
+    if id:
+        paper = Paper.objects.get(pk=id)
+        url = YSX_URL_SET_RIGHT_ZT
+        values = {'ztmc' : paper.title,
+        'kjzd' : '4',
+        'qyrq' : datetime.datetime.now().strftime('%Y%m%d') }
 
-    return getResult(True,u'结果',None)
+        data = urllib.urlencode(values)
+        req = urllib2.Request(url, data)
+        response = urllib2.urlopen(req)
+        html = response.read()
+        if html:
+            result = json.loads(html)
+            paper.right_ztdm = result.get("ztdm","")
+            paper.save()
+            return getResult(True,u'创建标准账套成功',paper.right_ztdm)
+
+    return getResult(False,u'创建失败',None)
+
+def getYSX_Login_URL(request):
+    return getResult(True,u'','%s/login.jsp'%YSX_URL)
