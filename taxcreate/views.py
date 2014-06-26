@@ -82,6 +82,28 @@ def saveRuleItem(request):
     return getResult(False,u'保存失败，请提供规则id')
 
 
+def copyRuleItem(request):
+    ruleid = request.REQUEST.get('ruleid','')
+    if ruleid:
+        rule = TaxRule.objects.get(pk=ruleid)
+        newrule = TaxRule()
+        newrule.name = u'复制_%s'%rule.name
+        newrule.taxtemplate = rule.taxtemplate
+        newrule.save()
+        for ruleitem in rule.ruleitem_set.all():
+            ri = RuleItem()
+            ri.rule = newrule
+            ri.index = ruleitem.index
+            ri.x =ruleitem.x
+            ri.y = ruleitem.y
+            ri.size = ruleitem.size
+            ri.color = ruleitem.color
+            ri.family = ruleitem.family
+            ri.word = ruleitem.word
+            ri.save()
+        return getResult(True,u'复制规则成功',None)
+    return getResult(False,u'复制失败，请提供规则id')
+
 def getTemplateList(request):
     l=[]
     for t in TaxTemplate.objects.all().order_by('id'):

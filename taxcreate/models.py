@@ -34,6 +34,27 @@ class RuleItem(models.Model):
     word = models.CharField(max_length=200,verbose_name=u'文字')
 
 
+
+
+class Guan(models.Model):
+    '''
+    关卡管理
+    '''
+    flag = models.IntegerField(verbose_name=u'关卡标记',unique=True,help_text=u'标记隶属于某一关')
+    name = models.CharField(max_length=30,verbose_name=u'关卡名字')
+    point = models.IntegerField(default=10,verbose_name=u'关卡积分',help_text=u'关卡积分或金币')
+    # paper = models.ManyToManyField(Paper,blank=True, null=True,verbose_name=u'包含试卷',help_text=u'如只有一个，则必选，如果有多个，则随机选择')
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta():
+        verbose_name = u'关卡'
+        verbose_name_plural = u'关卡管理'
+
+
+
+
 class Paper(models.Model):
     '''
     试卷，可以指定考试人员范围也可以不指定
@@ -45,6 +66,7 @@ class Paper(models.Model):
     subjects = models.ManyToManyField("Subject",null=True,blank=True,verbose_name=u'试题')
     right_ztdm = models.CharField(max_length=200,null=True,blank=True,verbose_name=u'标准答案账套', help_text=u'标准答案账套id')
     is_pub = models.BooleanField(choices=choices, default=True, verbose_name=u'是否发布', help_text=u'发布后不可修改')
+    guan = models.ForeignKey(Guan,verbose_name=u'隶属关卡',help_text=u'隶属的关卡',null=True,blank=True)
 
     def __unicode__(self):
         return self.title
@@ -102,8 +124,5 @@ class Option(models.Model):
     class Meta():
         verbose_name = u'选项'
         verbose_name_plural = u'选项列表'
-
-    def __unicode__(self):
-        return self.title
 
 

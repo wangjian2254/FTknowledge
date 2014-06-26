@@ -48,6 +48,7 @@ def menu(request):
                         <menuitem label='票据定义' mod='taximagecreate'></menuitem>
                     </menu>
                     <menu mod='myMenu3' label='考试'>
+                        <menuitem label='关卡管理' mod='guanqia'></menuitem>
                         <menuitem label='试卷' mod='paper'></menuitem>
                         <menuitem label='题库' mod='subject'></menuitem>
                         <menuitem label='考试' mod='kaoshi'></menuitem>

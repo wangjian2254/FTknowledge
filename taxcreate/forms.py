@@ -3,7 +3,7 @@
 #Date: 14-5-21
 #Time: 上午8:00
 from django import forms
-from taxcreate.models import Paper, PaperResult, Subject, Option
+from taxcreate.models import Paper, PaperResult, Subject, Option, Guan
 from util.CustomForm import CustomModelForm
 
 __author__ = u'王健'
@@ -13,9 +13,17 @@ __author__ = u'王健'
 class PaperForm(CustomModelForm):
     right_ztdm = forms.CharField(required=False)
     is_pub = forms.BooleanField()
+    guan = forms.ModelChoiceField(required=False,queryset=Guan.objects.all())
     class Meta:
         model = Paper
-        fields = ('title', 'content','is_pub','right_ztdm')
+        fields = ('title', 'content','is_pub','right_ztdm','guan')
+
+
+class GuanForm(CustomModelForm):
+    class Meta:
+        model = Guan
+        fields = ('flag', 'name','point')
+
 
 
 class PaperResultForm(CustomModelForm):

@@ -7,7 +7,12 @@ from taxcreate.models import Paper, Subject
 
 __author__ = u'王健'
 
-
+def getAllPaperUnGuan(request):
+    '''
+    获取所有未关联关卡的试卷
+    '''
+    paperlist = MyEncoder.default(Paper.objects.filter(guan=None).order_by('-id'))
+    return getResult(True,u'获取所有未关联关卡的试卷',{"result":paperlist})
 
 
 def getAllPaper(request):
@@ -40,7 +45,7 @@ def getAllPaper(request):
 
     totalnum = paperquery.count()
     for p in paperquery[start:start+limit]:
-        paperlist.append({"id":p.pk, 'title':p.title,'content':p.content,'right_ztdm':p.right_ztdm,'is_pub':p.is_pub})
+        paperlist.append({"id":p.pk, 'title':p.title,'content':p.content,'right_ztdm':p.right_ztdm,'is_pub':p.is_pub,'guan_id':p.guan_id})
     return getResult(True, '', {'result':paperlist, 'limit': limit, 'start': start,
                                 'total': totalnum})
 
