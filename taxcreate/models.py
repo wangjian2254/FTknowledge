@@ -126,3 +126,21 @@ class Option(models.Model):
         verbose_name_plural = u'选项列表'
 
 
+
+class PZSubjest(models.Model):
+    '''
+    试题的选项
+    '''
+    subject = models.ForeignKey(Subject, verbose_name=u'题目', help_text=u'隶属于哪一个题目')
+    paper = models.ForeignKey(Paper, verbose_name=u'试卷',help_text=u'隶属试卷')
+    yzpzid = models.CharField(max_length=100,verbose_name=u'预制凭证id')
+
+    def __unicode__(self):
+        return self.content
+
+    class Meta():
+        verbose_name = u'选项'
+        verbose_name_plural = u'选项列表'
+        unique_together = [('subject','paper')]
+
+

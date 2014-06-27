@@ -15,6 +15,7 @@ def getAllGuan(request):
     获取所有关卡
     '''
     guanlist = []
+    guanlist.append(1)
     guanquery = Guan.objects.all().order_by('flag')
     guanlist = MyEncoder.default(guanquery)
     return getResult(True, '', {'result':guanlist})

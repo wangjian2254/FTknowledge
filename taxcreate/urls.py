@@ -40,6 +40,7 @@ urlpatterns = patterns('taxcreate',
                        url(r'^copyPaper', 'view_shijuan.copyPaper'),
                        url(r'^doRightPaper', 'view_shijuan.doRightPaper'),
                        url(r'^getYSX_Login_URL', 'view_shijuan.getYSX_Login_URL'),
+                       url(r'^uploadYZPZ', 'view_shijuan.uploadYZPZ'),
 
                        url(r'^getAllGuan', 'view_guan.getAllGuan'),
                        url(r'^updateGuan', 'view_guan.updateGuan'),

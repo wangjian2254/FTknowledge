@@ -18,6 +18,7 @@ DATABASES = {
         'PASSWORD': 'htfsdb',                  # Not used with sqlite3.
         'HOST': '192.168.101.4',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
+        'ATOMIC_REQUEST': True,
     }
 }
 
@@ -102,6 +103,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'util.tools.ExceptionMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -136,7 +138,12 @@ INSTALLED_APPS = (
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
+     'formatters': {
+        'standard': {
+                'format': '%(levelname)s %(asctime)s %(message)s'
+                },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -147,6 +154,12 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+         'fk': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename':'fkerror.log',
+            'formatter':'standard',
         }
     },
     'loggers': {
@@ -155,5 +168,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+         'fk':{
+            'handlers': ['fk'],
+            'level': 'ERROR',
+            'propagate': False
+        }
     }
 }

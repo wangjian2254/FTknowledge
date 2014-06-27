@@ -2,12 +2,15 @@
 #Date: 11-12-8
 #Time: 下午10:28
 import json
+import logging
+import traceback
 from django.core.serializers import serialize, deserialize
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.core.cache import cache
 from django.utils import simplejson
 from django.db import models
+import sys
 from knowledge.models import Group
 
 __author__ = u'王健'
@@ -117,3 +120,33 @@ def getJson(**args):
      """
      result = dict(args)
      return simplejson.dumps(result,cls=MyEncoder)
+
+class ExceptionMiddleware(object):
+    """Middleware that gets various objects from the
+    request object and saves them in thread local storage."""
+    def process_exception(self, request,e):
+        import time
+        errorid = time.time()
+        log=logging.getLogger('fk')
+        s = ['错误码:%s'%errorid]
+        s.append(u'%s:%s'%(request.method,request.path))
+        user = getattr(request, 'user', None)
+        if user.username:
+            s.append(u'用户：%s'%user.username)
+        else:
+            s.append(u'未登录用户')
+        s.append(u'出现以下错误：')
+        etype, value, tb = sys.exc_info()
+        s.append(value.message)
+        s.append(u'错误代码位置如下：')
+        while tb is not None:
+            f = tb.tb_frame
+            lineno = tb.tb_lineno
+            co = f.f_code
+            filename = co.co_filename
+            name = co.co_name
+            s.append(u'File "%s", line %d, in %s' % (filename, lineno, name))
+            tb = tb.tb_next
+        log.error('\n    '.join(s))
+        return getResult(False,u'服务器端错误,请联系管理员,错误标记码：%s'%errorid)
+
