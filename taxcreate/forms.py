@@ -16,7 +16,7 @@ class PaperForm(CustomModelForm):
     guan = forms.ModelChoiceField(required=False,queryset=Guan.objects.all())
     class Meta:
         model = Paper
-        fields = ('title', 'content','is_pub','right_ztdm','guan')
+        fields = ('title', 'content','is_pub','right_ztdm','guan','time')
 
 
 class GuanForm(CustomModelForm):

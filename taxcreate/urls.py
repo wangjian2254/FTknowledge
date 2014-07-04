@@ -47,6 +47,7 @@ urlpatterns = patterns('taxcreate',
                        url(r'^getPaperByGuan', 'view_guan.getPaperByGuan'),
                        url(r'^doGuanPaper', 'view_guan.doGuanPaper'),
                        url(r'^delGuan', 'view_guan.delGuan'),
-                       url(r'^getGuan', 'view_guan.getGuan'),
+                       url(r'^getGuan$', 'view_guan.getGuan'),
+                       url(r'^getGuanData', 'view_guan.getGuanData'),
 
 )

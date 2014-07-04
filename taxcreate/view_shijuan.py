@@ -169,6 +169,7 @@ def doRightPaper(request):
         url = YSX_URL_SET_RIGHT_ZT
         values = {'ztmc' : paper.title,
         'kjzd' : '4',
+        'id' : paper.pk,
         'qyrq' : datetime.datetime.now().strftime('%Y%m%d') }
         if paper.right_ztdm:
             values['ztdm']=paper.right_ztdm
@@ -183,16 +184,25 @@ def doRightPaper(request):
             paper.save()
 
             url = YSX_URL_UPLOAD_YZPZ
-            values =[]
-            for s in paper.subjects.all().filter(type=2).order_by('id'):
-                values.append({"id":s.pk,'imgurl':'http://%s/tax/showTaxImage?ruleid=%s'%(request.environ['HTTP_HOST'],s.rule_id),'ztdm':paper.right_ztdm,'ssq':datetime.datetime.strftime('%Y%m%d'),'discription':s.title})
-            req = urllib2.Request(url, json.dumps(values))
+            values ={}
+            for i ,s in enumerate(paper.subjects.all().filter(type=2).order_by('id')):
+                values['id_%s'%i]=s.pk
+                values['imgurl_%s'%i]='http://%s/tax/showTaxImage?ruleid=%s'%(request.environ['HTTP_HOST'],s.rule_id)
+                values['ztdm_%s'%i]=paper.right_ztdm
+                values['ssq_%s'%i]=datetime.datetime.now().strftime('%Y%m')
+                values['discription_%s'%i]=s.title
+                values['num']=i+1
+
+                # values.append({"id":s.pk,'imgurl':'http://%s/tax/showTaxImage?ruleid=%s'%(request.environ['HTTP_HOST'],s.rule_id),'ztdm':paper.right_ztdm,'ssq':datetime.datetime.now().strftime('%Y%m'),'discription':s.title})
+            data = urllib.urlencode(values)
+            req = urllib2.Request(url, data)
+            # req = urllib2.Request(url, json.dumps(values))
             response = urllib2.urlopen(req)
             html = response.read()
             if html:
                 result = json.loads(html)
-                for k,v in result:
-                    pzsubject = PZSubjest.objects.get_or_create(subject=k,paper=paper)
+                for k,v in result.items():
+                    pzsubject,created = PZSubjest.objects.get_or_create(subject_id=k,paper=paper)
                     pzsubject.yzpzid = v
                     pzsubject.save()
                 return getResult(True,u'创建标准账套成功',paper.right_ztdm)

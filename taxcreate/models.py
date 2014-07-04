@@ -67,7 +67,7 @@ class Paper(models.Model):
     right_ztdm = models.CharField(max_length=200,null=True,blank=True,verbose_name=u'标准答案账套', help_text=u'标准答案账套id')
     is_pub = models.BooleanField(choices=choices, default=True, verbose_name=u'是否发布', help_text=u'发布后不可修改')
     guan = models.ForeignKey(Guan,verbose_name=u'隶属关卡',help_text=u'隶属的关卡',null=True,blank=True)
-
+    time = models.IntegerField(verbose_name=u'考试时间',help_text=u'考试允许使用时间')
     def __unicode__(self):
         return self.title
 
