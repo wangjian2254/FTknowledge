@@ -3,7 +3,6 @@
 #Time: 下午10:28
 import json
 import logging
-import traceback
 from django.core.serializers import serialize, deserialize
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
@@ -128,7 +127,7 @@ class ExceptionMiddleware(object):
         import time
         errorid = time.time()
         log=logging.getLogger('fk')
-        s = ['错误码:%s'%errorid]
+        s = [u'错误码:%s'%errorid]
         s.append(u'%s:%s'%(request.method,request.path))
         user = getattr(request, 'user', None)
         if user.username:

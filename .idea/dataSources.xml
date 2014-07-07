@@ -2,16 +2,12 @@
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" hash="3870307488">
     <data-source source="LOCAL" name="Django default" uuid="340c6acc-b880-4fed-9ab1-15bb8e941933">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <driver-ref>mysql</driver-ref>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://192.168.101.4:3306/taxknowledge</jdbc-url>
       <user-name>root</user-name>
       <user-password>dfc2dfdedfccdfd9dfcedfc8</user-password>
-      <libraries>
-        <library>
-          <url>file://$USER_HOME$/.PyCharm30/config/jdbc-drivers/sqlite-jdbc-3.7.6.3-20110609.081603-3.jar</url>
-        </library>
-      </libraries>
+      <libraries />
     </data-source>
   </component>
 </project>
