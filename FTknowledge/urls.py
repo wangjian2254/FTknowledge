@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^TK.html$', 'knowledge.views.index'),
     url(r'^ft/', include('knowledge.urls')),
     url(r'^tax/', include('taxcreate.urls')),
+    url(r'^log/', include('model_history.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

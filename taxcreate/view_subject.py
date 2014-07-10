@@ -70,12 +70,16 @@ def getSubjectByKind(request):
 
 
 def getSubjectAll(request):
-    limit = int(request.REQUEST.get('limit', '40'))
+    limit = int(request.REQUEST.get('limit', '60'))
     start = int(request.REQUEST.get('start', '0'))
+    all = request.REQUEST.get('all','')
     sl = []
     subjectquery = Subject.objects.all().order_by('-id')
     totalnum = subjectquery.count()
-    for subject in subjectquery[start:start + limit]:
+    if not all:
+        subjectquery = subjectquery[start:start + limit]
+
+    for subject in subjectquery:
         sl.append(MyEncoder.default(subject))
     return getResult(True, '', {'result': sl, 'limit': limit, 'start': start, 'total': totalnum})
 

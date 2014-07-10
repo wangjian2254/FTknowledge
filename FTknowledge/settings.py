@@ -104,6 +104,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'util.tools.ExceptionMiddleware',
+    'model_history.threadlocals.ThreadLocals',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -129,6 +130,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'knowledge',
     'taxcreate',
+    'model_history',
 )
 
 # A sample logging configuration. The only tangible logging

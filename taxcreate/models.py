@@ -2,28 +2,44 @@
 #Date: 11-12-8
 #Time: 下午10:28
 from django.contrib.auth.models import User
+from model_history.history import ModelWithHistory
 
 __author__ = u'王健'
 from django.db import models
 
 # Create your models here.
 
-class TaxTemplate(models.Model):
+class TaxTemplate(ModelWithHistory):
     name = models.CharField(max_length=50, unique=True, verbose_name=u'票据模板', help_text=u'票据模板名称')
     img = models.ImageField(upload_to='tax/',verbose_name=u'票据模板位置')
 
 
     def __unicode__(self):
         return u'%s'%(self.name,)
+    class Meta():
+        verbose_name=u'票据分组'
+        verbose_name_plural=u'票据分组列表'
 
-class TaxRule(models.Model):
+    class History:
+        model = True
+        fields = ('name',)
+
+class TaxRule(ModelWithHistory):
     taxtemplate = models.ForeignKey(TaxTemplate,verbose_name=u'票据模板')
     name = models.CharField(max_length=50,verbose_name=u'生成票据条件')
 
     def __unicode__(self):
         return u'%s-%s'%(self.name,self.taxtemplate.name)
 
-class RuleItem(models.Model):
+    class Meta():
+        verbose_name=u'票据分组'
+        verbose_name_plural=u'票据分组列表'
+
+    class History:
+        model = True
+        fields = ('taxtemplate', 'name')
+
+class RuleItem(ModelWithHistory):
     rule = models.ForeignKey(TaxRule,verbose_name=u'票据条件')
     index = models.IntegerField(verbose_name=u'索引')
     x = models.IntegerField(verbose_name=u'模板位置x')
@@ -34,9 +50,21 @@ class RuleItem(models.Model):
     word = models.CharField(max_length=200,verbose_name=u'文字')
 
 
+    def __unicode__(self):
+        return u'%s'%(self.word,)
+
+    class Meta():
+        verbose_name=u'票据打印参数'
+        verbose_name_plural=u'票据打印参数列表'
+
+    class History:
+        model = True
+        fields = ('rule', 'index','x','y','size','color','family','word')
 
 
-class Guan(models.Model):
+
+
+class Guan(ModelWithHistory):
     '''
     关卡管理
     '''
@@ -54,8 +82,14 @@ class Guan(models.Model):
 
 
 
+    class History:
+        model = True
+        fields = ('name','flag', 'point')
 
-class Paper(models.Model):
+
+
+
+class Paper(ModelWithHistory):
     '''
     试卷，可以指定考试人员范围也可以不指定
     '''
@@ -74,7 +108,12 @@ class Paper(models.Model):
     class Meta():
         verbose_name = u'试卷'
 
-class PaperResult(models.Model):
+
+    class History:
+        model = True
+        fields = ('title', 'content','subjects','right_ztdm','is_pub','guan','time')
+
+class PaperResult(ModelWithHistory):
     '''
     人员考试的答题结果
     '''
@@ -91,7 +130,13 @@ class PaperResult(models.Model):
     class Meta():
         verbose_name = u'答题'
 
-class Subject(models.Model):
+
+
+    class History:
+        model = True
+        fields = ('paper', 'user','editDate','accuracy','result')
+
+class Subject(ModelWithHistory):
     '''
     试题信息，有记录正确次数和错误次数，方便计算试题的正确率，未来可以衡量难度
     '''
@@ -109,8 +154,14 @@ class Subject(models.Model):
 
 
 
+    class History:
+        model = True
+        fields = ('title', 'bz','type','rule')
 
-class Option(models.Model):
+
+
+
+class Option(ModelWithHistory):
     '''
     试题的选项
     '''
@@ -126,8 +177,13 @@ class Option(models.Model):
         verbose_name_plural = u'选项列表'
 
 
+    class History:
+        model = True
+        fields = ('subject','content', 'is_active')
 
-class PZSubjest(models.Model):
+
+
+class PZSubjest(ModelWithHistory):
     '''
     试题的选项
     '''
@@ -142,5 +198,10 @@ class PZSubjest(models.Model):
         verbose_name = u'选项'
         verbose_name_plural = u'选项列表'
         unique_together = [('subject','paper')]
+
+
+    class History:
+        model = True
+        fields = ('subject', 'paper','yzpzid')
 
 

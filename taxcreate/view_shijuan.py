@@ -27,6 +27,7 @@ def getAllPaper(request):
     is_pub = request.REQUEST.get('is_pub', '')
 
     title = request.REQUEST.get('title', '')
+    all = request.REQUEST.get('all', '')
 
 
     limit = int(request.REQUEST.get('limit', '40'))
@@ -47,8 +48,10 @@ def getAllPaper(request):
 
 
     totalnum = paperquery.count()
-    for p in paperquery[start:start+limit]:
-        paperlist.append({"id":p.pk, 'title':p.title,'content':p.content,'right_ztdm':p.right_ztdm,'is_pub':p.is_pub,'guan_id':p.guan_id})
+    if not all:
+        paperquery = paperquery[start:start+limit]
+    for p in paperquery:
+        paperlist.append({"id":p.pk, 'title':p.title,'content':p.content,'right_ztdm':p.right_ztdm,'is_pub':p.is_pub,'guan_id':p.guan_id,'time':p.time})
     return getResult(True, '', {'result':paperlist, 'limit': limit, 'start': start,
                                 'total': totalnum})
 

@@ -53,6 +53,10 @@ def menu(request):
                         <menuitem label='题库' mod='subject'></menuitem>
                         <menuitem label='考试' mod='kaoshi'></menuitem>
                     </menu>
+                    <menu mod='myMenu3' label='日志'>
+                        <menuitem label='日志查询' mod='log'></menuitem>
+
+                    </menu>
 
                 </root>
         '''
