@@ -51,7 +51,7 @@ def getAllPaper(request):
     if not all:
         paperquery = paperquery[start:start+limit]
     for p in paperquery:
-        paperlist.append({"id":p.pk, 'title':p.title,'content':p.content,'right_ztdm':p.right_ztdm,'is_pub':p.is_pub,'guan_id':p.guan_id,'time':p.time})
+        paperlist.append({"id":p.pk, 'title':p.title, 'flag':p.flag,'content':p.content,'right_ztdm':p.right_ztdm,'is_pub':p.is_pub,'guan_id':p.guan_id,'time':p.time})
     return getResult(True, '', {'result':paperlist, 'limit': limit, 'start': start,
                                 'total': totalnum})
 
@@ -70,6 +70,8 @@ def updatePaper(request):
     if not paperform.is_valid():
         msg = paperform.json_error()
         return getResult(False,msg,None)
+    if not pk:
+        paperform.instance.author=request.user
     paper = paperform.save()
     return getResult(True,u'保存分类信息成功', paper.pk)
 
@@ -170,7 +172,7 @@ def doRightPaper(request):
         if 0 == paper.subjects.all().filter(type=2).count():
             return getResult(False,u'试卷中没有，凭证录入 类型的题目，无需创建标准账套')
         url = YSX_URL_SET_RIGHT_ZT
-        values = {'ztmc' : paper.title,
+        values = {'ztmc' : paper.title.encode('utf-8'),
         'kjzd' : '4',
         'id' : paper.pk,
         'qyrq' : datetime.datetime.now().strftime('%Y%m%d') }
@@ -193,7 +195,7 @@ def doRightPaper(request):
                 values['imgurl_%s'%i]='http://%s/tax/showTaxImage?ruleid=%s'%(request.environ['HTTP_HOST'],s.rule_id)
                 values['ztdm_%s'%i]=paper.right_ztdm
                 values['ssq_%s'%i]=datetime.datetime.now().strftime('%Y%m')
-                values['discription_%s'%i]=s.title
+                values['discription_%s'%i]=s.title.encode('utf-8')
                 values['num']=i+1
 
                 # values.append({"id":s.pk,'imgurl':'http://%s/tax/showTaxImage?ruleid=%s'%(request.environ['HTTP_HOST'],s.rule_id),'ztdm':paper.right_ztdm,'ssq':datetime.datetime.now().strftime('%Y%m'),'discription':s.title})

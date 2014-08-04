@@ -13,7 +13,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'taxknowledge',                      # Or path to database file if using sqlite3.
+        'NAME': 'taxknowledge2',                      # Or path to database file if using sqlite3.
         'USER': 'root',                      # Not used with sqlite3.
         'PASSWORD': 'htfsdb',                  # Not used with sqlite3.
         'HOST': '192.168.101.4',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -160,7 +160,7 @@ LOGGING = {
          'fk': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename':'fkerror.log',
+            'filename':'%s/logs/fkerror.log'%MEDIA_ROOT,
             'formatter':'standard',
         }
     },

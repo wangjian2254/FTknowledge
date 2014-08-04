@@ -21,7 +21,10 @@ def updateSubject(request):
         return getResult(False, msg, None)
     #if not kindForm.instance.accuracy:
     #    kindForm.instance.accuracy = 0.0
+    if not pk:
+        kindForm.instance.author=request.user
     kind = kindForm.save()
+
     for i in range(20):
         id = request.REQUEST.get("option_id_%s" % i, None)
         content = request.REQUEST.get("option_content_%s" % i, None)

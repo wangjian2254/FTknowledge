@@ -96,6 +96,8 @@ class Paper(ModelWithHistory):
     choices = ((True, u'已发布'), (False, u'未发布'))
 
     title = models.CharField(max_length=200,verbose_name=u'标题', help_text=u'考卷名字')
+    flag = models.CharField(max_length=50,blank=True, null=True,verbose_name=u'标记',help_text=u'录入者的标记')
+    author = models.ForeignKey(User,blank=True, null=True,verbose_name=u'作者')
     content = models.TextField(verbose_name=u'内容', help_text=u'考卷描述', blank=True, null=True)
     subjects = models.ManyToManyField("Subject",null=True,blank=True,verbose_name=u'试题')
     right_ztdm = models.CharField(max_length=200,null=True,blank=True,verbose_name=u'标准答案账套', help_text=u'标准答案账套id')
@@ -141,6 +143,8 @@ class Subject(ModelWithHistory):
     试题信息，有记录正确次数和错误次数，方便计算试题的正确率，未来可以衡量难度
     '''
     title = models.CharField(max_length=2000, verbose_name=u'题目', help_text=u'选择题题目')
+    flag = models.CharField(max_length=50,blank=True, null=True,verbose_name=u'标记',help_text=u'录入者的标记')
+    author = models.ForeignKey(User,blank=True, null=True,verbose_name=u'作者')
     bz = models.CharField(max_length=1000,blank=True, null=True,verbose_name=u'备注',help_text=u'正确答案的解释')
     type = models.IntegerField(default=1,verbose_name=u'题型',help_text=u'1:选择题,2:凭证录入题')
     rule = models.ForeignKey(TaxRule,null=True,blank=True,verbose_name=u'自定义票据',help_text=u'自定义票据规则')

@@ -12,11 +12,12 @@ __author__ = u'王健'
 
 class PaperForm(CustomModelForm):
     right_ztdm = forms.CharField(required=False)
+    flag = forms.CharField(required=False)
     is_pub = forms.BooleanField()
     guan = forms.ModelChoiceField(required=False,queryset=Guan.objects.all())
     class Meta:
         model = Paper
-        fields = ('title', 'content','is_pub','right_ztdm','guan','time')
+        fields = ('title','flag', 'content','is_pub','right_ztdm','guan','time')
 
 
 class GuanForm(CustomModelForm):
@@ -34,9 +35,10 @@ class PaperResultForm(CustomModelForm):
 
 class SubjectForm(CustomModelForm):
     ruleitem = forms.IntegerField(required=False)
+    flag = forms.CharField(required=False)
     class Meta:
         model = Subject
-        fields = ('title','bz', 'type','rule')
+        fields = ('title','flag','bz', 'type','rule')
 
 
 class OptionForm(CustomModelForm):

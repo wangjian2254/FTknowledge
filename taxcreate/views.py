@@ -2,6 +2,7 @@
 #Date: 11-12-8
 #Time: 下午10:28
 from django.http import HttpResponse
+from FTknowledge.settings import STATIC_ROOT
 from util.tools import getResult
 from taxcreate.models import TaxTemplate, TaxRule, RuleItem
 
@@ -42,10 +43,12 @@ def saveTemplate(request):
     if id:
         rule = TaxTemplate.objects.get(pk=id)
     else:
+        if TaxTemplate.objects.filter(name=name).count()>0:
+            return getResult(False,u'票据模板名称不能重复',None)
         rule = TaxTemplate()
     rule.name = name
     rule.save()
-    return getResult(True,u'保存规则成功',{'id':rule.pk,'name':rule.name})
+    return getResult(True,u'保存票据模板成功',{'id':rule.pk,'name':rule.name})
 
 
 def saveRuleItem(request):
@@ -151,7 +154,7 @@ def showTaxImage(request):
                 d.text((0,y),'%s'%y,(0,0,0),font=f)
 
         for r in RuleItem.objects.filter(rule=rule).order_by('index'):
-            font = ImageFont.truetype('msyh.ttf',r.size)
+            font = ImageFont.truetype('%smsyh.ttf'%STATIC_ROOT,r.size)
             c =('%06x'%r.color)
             cr = int(c[-6:-4],16)
             cg = int(c[-4:-2],16)
