@@ -3,7 +3,7 @@
 #Date: 14-5-21
 #Time: 上午8:00
 from django import forms
-from taxcreate.models import Paper, PaperResult, Subject, Option, Guan
+from taxcreate.models import Paper, PaperResult, Subject, Option, Guan, PZ, KM
 from util.CustomForm import CustomModelForm
 
 __author__ = u'王健'
@@ -39,6 +39,19 @@ class SubjectForm(CustomModelForm):
     class Meta:
         model = Subject
         fields = ('title','flag','bz', 'type','rule')
+
+
+class KMForm(CustomModelForm):
+    class Meta:
+        model = KM
+        fields = ('paper','kmbh','name')
+
+
+class PZForm(CustomModelForm):
+    desc = forms.CharField(required=False)
+    class Meta:
+        model = PZ
+        fields = ('subject','desc')
 
 
 class OptionForm(CustomModelForm):

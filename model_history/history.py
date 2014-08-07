@@ -162,6 +162,8 @@ class ModelWithHistory(models.Model):
                             content_type = ContentType.objects.get_for_model(self))
             threadlocals.set_log_entry(key,history)
         l = getattr(self,'_field_change_message_list',[]) + getattr(self,'_field_m2m_change_message_list',[])
+        if not l:
+            return
         history.change_message = '\n'.join(l)
         try:
             history.object_repr = unicode(self)

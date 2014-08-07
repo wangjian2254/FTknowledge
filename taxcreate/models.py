@@ -209,3 +209,53 @@ class PZSubjest(ModelWithHistory):
         fields = ('subject', 'paper','yzpzid')
 
 
+
+class KM(ModelWithHistory):
+
+    paper = models.ForeignKey(Paper, verbose_name=u'试卷')
+    kmbh = models.CharField(max_length=10, db_index=True, verbose_name=u'科目编号')
+    name = models.CharField(max_length=200,verbose_name=u'会计科目')
+    # fatherKM = models.ForeignKey('KM', blank=True, null=True)
+    class Meta():
+        verbose_name=u'会计科目'
+        verbose_name_plural=u'会计科目列表'
+        unique_together = [('paper','kmbh')]
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+    class History:
+        model = True
+        fields = ('name', 'kmbh', 'paper')
+
+class PZ(ModelWithHistory):
+
+    subject = models.ForeignKey(Subject)
+    desc = models.TextField(verbose_name=u'凭证解释')
+    class Meta():
+        verbose_name=u'凭证'
+        verbose_name_plural=u'凭证列表'
+    def __unicode__(self):
+        return u'%s 凭证' % (self.subject,)
+
+    class History:
+        model = True
+        fields = ('desc')
+
+class FL(ModelWithHistory):
+    FX = ((u'借', True), (u'贷', False))
+    pz = models.ForeignKey(PZ)
+    kmmc = models.ForeignKey('KM', db_index=True, blank=True, null=True, verbose_name=u'科目名称',
+                            help_text=u'分录科目名称')
+    # zy = models.CharField(max_length=100, db_index=True, blank=True, null=True, verbose_name=u'摘要')
+    fx = models.BooleanField(default=True, choices=FX, verbose_name=u'方向', help_text=u'借正贷负')
+    num=models.DecimalField(max_digits=8,decimal_places=2,blank=True,null=True)
+    zy=models.TextField(blank=True,null=True,verbose_name=u'摘要')
+    # desc = models.CharField(max_length=1000,  blank=True, null=True, verbose_name=u'凭证备注')
+    class Meta():
+        verbose_name=u'分录'
+        verbose_name_plural=u'分录列表'
+    def __unicode__(self):
+        return u'%s' % (self.pz,)
+    class History:
+        model = True
+        fields = ('pz', 'kmmc','fx','num','zy')

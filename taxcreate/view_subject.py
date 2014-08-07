@@ -1,9 +1,10 @@
 #coding=utf-8
 #Date:14-6-17
 #Email:wangjian2254@gmail.com
+import json
 from django.db.models import Q
-from taxcreate.forms import SubjectForm
-from taxcreate.models import Subject, Option
+from taxcreate.forms import SubjectForm, PZForm
+from taxcreate.models import Subject, Option, PZ, FL, KM
 from util.tools import getResult, MyEncoder
 
 __author__ = u'王健'
@@ -25,25 +26,62 @@ def updateSubject(request):
         kindForm.instance.author=request.user
     kind = kindForm.save()
 
-    for i in range(20):
-        id = request.REQUEST.get("option_id_%s" % i, None)
-        content = request.REQUEST.get("option_content_%s" % i, None)
-        is_right = request.REQUEST.get("option_is_right_%s" % i, None)
-        if id or content or is_right:
-            if is_right == 'true':
-                is_right = True
+    if kind.type == 1:
+        for i in range(20):
+            id = request.REQUEST.get("option_id_%s" % i, None)
+            content = request.REQUEST.get("option_content_%s" % i, None)
+            is_right = request.REQUEST.get("option_is_right_%s" % i, None)
+            if id or content or is_right:
+                if is_right == 'true':
+                    is_right = True
+                else:
+                    is_right = False
+                if id:
+                    option = Option.objects.get(pk=id)
+                else:
+                    option = Option()
+                option.content = content
+                option.is_right = is_right
+                option.subject = kind
+                option.save()
+    else:
+        #保存凭证信息
+        pzpk = request.REQUEST.get('pzid', '')
+        if pzpk:
+            pzform = PZForm(request.POST, instance=PZ.objects.get(pk=pzpk))
+        else:
+            pzform = PZForm(request.POST)
+        if not pzform.is_valid():
+            msg = pzform.json_error()
+            return getResult(False, msg, None)
+        pz = pzform.save()
+        fl = request.REQUEST.get('fl','')
+        fllist = json.loads(fl)
+        if len(fllist)==0:
+            FL.objects.filter(pz=pz).delete()
+            PZ.objects.get(pk=pz).delete()
+            return getResult(True,'')
+        flids=[]
+        for fl in fllist:
+            if fl.has_key('id'):
+                f = FL.objects.get(pk=fl.get('id'))
             else:
-                is_right = False
-            if id:
-                option = Option.objects.get(pk=id)
+                f = FL()
+                f.pz = pz
+            f.kmmc = KM.objects.get(pk=fl.get('kjkm'))
+            f.fx = fl.get('fx')
+            f.zy = fl.get('zy')
+            if fl.get('fx'):
+                f.num = fl.get('jje',0)
             else:
-                option = Option()
-            option.content = content
-            option.is_right = is_right
-            option.subject = kind
-            option.save()
+                f.num = fl.get('dje',0)
+            f.save()
+            flids.append(f.pk)
+        if len(flids)>0:
+            FL.objects.exclude(pk__in=flids).filter(pz=pz).delete()
 
     return getResult(True, u'保存试题信息成功', kind.pk)
+
 
 def getOptionBySubject(request):
     sid = request.REQUEST.get('sid',None)
