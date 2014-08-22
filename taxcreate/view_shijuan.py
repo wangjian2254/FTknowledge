@@ -51,7 +51,7 @@ def getAllPaper(request):
     if not all:
         paperquery = paperquery[start:start+limit]
     for p in paperquery:
-        paperlist.append({"id":p.pk, 'title':p.title, 'flag':p.flag,'content':p.content,'right_ztdm':p.right_ztdm,'is_pub':p.is_pub,'guan_id':p.guan_id,'time':p.time})
+        paperlist.append({"id":p.pk, 'title':p.title,'kmkind':p.kmkind_id, 'flag':p.flag,'content':p.content,'right_ztdm':p.right_ztdm,'is_pub':p.is_pub,'guan_id':p.guan_id,'time':p.time})
     return getResult(True, '', {'result':paperlist, 'limit': limit, 'start': start,
                                 'total': totalnum})
 

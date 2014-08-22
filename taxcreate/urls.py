@@ -28,6 +28,10 @@ urlpatterns = patterns('taxcreate',
                        url(r'^delSubject', 'view_subject.delSubject'),
                        url(r'^delOption', 'view_subject.delOption'),
 
+                       url(r'^getPZ', 'view_subject.getPZ'),
+
+
+
                        url(r'^updatePaper', 'view_shijuan.updatePaper'),
                        url(r'^getAllPaperUnGuan', 'view_shijuan.getAllPaperUnGuan'),
                        url(r'^getSubjectByPaper', 'view_shijuan.getSubjectByPaper'),
@@ -49,5 +53,15 @@ urlpatterns = patterns('taxcreate',
                        url(r'^delGuan', 'view_guan.delGuan'),
                        url(r'^getGuan$', 'view_guan.getGuan'),
                        url(r'^getGuanData', 'view_guan.getGuanData'),
+
+                       #科目管理
+                       url(r'^updateKjkmKind', 'view_kjkm.updateKJKMKind'),
+                       url(r'^updateKJKM', 'view_kjkm.updateKJKM'),
+                       url(r'^delKJKM', 'view_kjkm.delKJKM'),
+                       url(r'^delKjkmKind', 'view_kjkm.delKjkmKind'),
+                       url(r'^getAllKind', 'view_kjkm.getAllKind'),
+                       url(r'^getAllKMByKind', 'view_kjkm.getAllKMByKind'),
+                       url(r'^getAllKMLabelByKind', 'view_kjkm.getAllKMLabelByKind'),
+                       url(r'^exportKJKM', 'view_kjkm.exportKJKM'),
 
 )

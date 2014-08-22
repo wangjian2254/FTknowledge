@@ -44,23 +44,28 @@ def updateSubject(request):
                 option.is_right = is_right
                 option.subject = kind
                 option.save()
+        return getResult(True, u'保存试题信息成功', {"subjectid":kind.pk})
     else:
+        kmkind = request.REQUEST.get("kmkind","")
+        kind.kmkind_id = kmkind
+        kind.save()
         #保存凭证信息
-        pzpk = request.REQUEST.get('pzid', '')
-        if pzpk:
-            pzform = PZForm(request.POST, instance=PZ.objects.get(pk=pzpk))
+        # pzpk = request.REQUEST.get('pzid', '')
+        pzl = PZ.objects.filter(subject_id=kind.pk)
+        if len(pzl)>0:
+            pz = pzl[0]
         else:
-            pzform = PZForm(request.POST)
-        if not pzform.is_valid():
-            msg = pzform.json_error()
-            return getResult(False, msg, None)
-        pz = pzform.save()
-        fl = request.REQUEST.get('fl','')
+            pz = PZ()
+        pz.subject = kind
+        pz.desc = request.REQUEST.get("pzdesc","")
+        pz.save()
+
+        fl = request.REQUEST.get('pzfl','')
         fllist = json.loads(fl)
         if len(fllist)==0:
             FL.objects.filter(pz=pz).delete()
             PZ.objects.get(pk=pz).delete()
-            return getResult(True,'')
+
         flids=[]
         for fl in fllist:
             if fl.has_key('id'):
@@ -79,8 +84,9 @@ def updateSubject(request):
             flids.append(f.pk)
         if len(flids)>0:
             FL.objects.exclude(pk__in=flids).filter(pz=pz).delete()
+        return getResult(True, u'保存试题信息成功', {"subjectid":kind.pk,"pzid":pz.pk})
 
-    return getResult(True, u'保存试题信息成功', kind.pk)
+
 
 
 def getOptionBySubject(request):
@@ -115,7 +121,7 @@ def getSubjectAll(request):
     start = int(request.REQUEST.get('start', '0'))
     all = request.REQUEST.get('all','')
     sl = []
-    subjectquery = Subject.objects.all().order_by('-id')
+    subjectquery = Subject.objects.all().order_by('title')
     totalnum = subjectquery.count()
     if not all:
         subjectquery = subjectquery[start:start + limit]
@@ -159,3 +165,32 @@ def delOption(request):
         getResult(False, u'选项不存在', None)
 
     return getResult(True, u'选项删除成功', id)
+
+
+
+def getPZ(request):
+    subjectid = request.REQUEST.get('subjectid','')
+    subject = Subject.objects.get(pk=subjectid)
+    pz = PZ.objects.filter(subject=subject)[:1]
+    result = {'fllist':[],'pzdesc':'',"kindid":subject.kmkind_id}
+    if len(pz)>0:
+        pz = pz[0]
+        fllist=[]
+        for fl in FL.objects.filter(pz=pz).order_by('id'):
+            f={'kjkm':fl.kmmc_id, 'fx':fl.fx, 'id':fl.pk, 'zy':fl.zy}
+            if fl.fx:
+                f['jje'] = str(fl.num)
+                if not fl.num:
+                    f['jje']=0
+            else:
+                f['dje'] = str(fl.num)
+                if not fl.num:
+                    f['dje']=0
+            fllist.append(f)
+        result['fllist']=fllist
+        result['pzdesc']= pz.desc
+        result['pzid']=pz.pk
+        # result['imgurl']= pz.getImg()
+        return getResult(True,'',result)
+    else:
+        return getResult(True,'',result)

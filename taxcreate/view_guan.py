@@ -1,11 +1,11 @@
 # coding=utf-8
-#Date:14-6-17
-#Email:wangjian2254@gmail.com
+# Date:14-6-17
+# Email:wangjian2254@gmail.com
 import json
 from django.http import HttpResponse
 from util.tools import getResult, MyEncoder
 from taxcreate.forms import GuanForm
-from taxcreate.models import Guan, Subject, Paper, PZSubjest
+from taxcreate.models import Guan, Subject, Paper, PZSubjest, PZ
 
 __author__ = u'王健'
 
@@ -118,8 +118,10 @@ def getGuanData(request):
             total = guan.paper_set.all().count()
             if total > 1:
                 import random
-
-                paper = guan.paper_set.all()[random.randint(0, total)]
+                index = random.randint(0, total-1)
+                if index>=total:
+                    print index,total
+                paper = guan.paper_set.all()[index]
             elif total == 1:
                 paper = guan.paper_set.all()[0]
             else:
@@ -135,21 +137,30 @@ def paper2js(paper, request):
         return 'var paper=null;'
     else:
         data = {}
-        data['id'] = paper.pk;
-        data['name'] = paper.guan.name;
-        data['content'] = paper.content;
-        data['right_ztdm'] = paper.right_ztdm;
+        data['id'] = paper.pk
+        data['name'] = paper.guan.name
+        data['content'] = paper.content
+        data['right_ztdm'] = paper.right_ztdm
         data['point'] = paper.guan.point
         data['time'] = paper.time
+        if paper.kmkind_id:
+            data['kjkm'] = []
+            for km in paper.kmkind.km_set.all():
+                data['kjkm'].append({"id": km.pk, 'name': '%s:%s' % (km.kmbh, km.name)})
+            data['kjkm']=json.dumps(data['kjkm'])
         if not data['time']:
-            data['time']=1
+            data['time'] = 1
         data['subject'] = []
         for i, s in enumerate(paper.subjects.all()):
             subject = {'sid': s.id, 'title': s.title, 'bz': s.bz, 'type': s.type, 'imgurl': [], 'option': []}
             if s.type == 2:
-                pzlist = PZSubjest.objects.filter(subject=s, paper=paper)[:1]
-                if len(pzlist) > 0:
-                    subject['yzpzid'] = pzlist[0].yzpzid
+                try:
+                    pz = PZ.objects.filter(subject=s)[0]
+                    subject['fl'] = []
+                    for fl in pz.fl_set.all():
+                        subject['fl'].append({"fx": fl.fx, 'num': float(fl.num), 'kjkm': fl.kmmc_id, 'zy': fl.zy})
+                except:
+                    pass
             if s.rule_id:
                 subject['imgurl'].append(
                     'http://%s/tax/showTaxImage?ruleid=%s' % (request.environ['HTTP_HOST'], s.rule_id))
