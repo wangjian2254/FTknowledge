@@ -77,9 +77,9 @@ def updateSubject(request):
             f.fx = fl.get('fx')
             f.zy = fl.get('zy')
             if fl.get('fx'):
-                f.num = fl.get('jje',0)
+                f.num = float(fl.get('jje',0))
             else:
-                f.num = fl.get('dje',0)
+                f.num = float(fl.get('dje',0))
             f.save()
             flids.append(f.pk)
         if len(flids)>0:
@@ -109,9 +109,10 @@ def getSubjectByKind(request):
     kind = request.REQUEST.get('kind', None)
     if kind:
         sl = []
-        for subject in Subject.objects.filter(Q(title__icontains=kind)):
+        query = Subject.objects.filter(Q(title__icontains=kind)|Q(flag__icontains=kind)).order_by('title')
+        for subject in query:
             sl.append(MyEncoder.default(subject))
-        return getResult(True, '', sl)
+        return getResult(True, '', {'result': sl, 'limit': query.count(), 'start': 0, 'total': query.count()})
     else:
         return getResult(False, u'请提供关键字', None)
 

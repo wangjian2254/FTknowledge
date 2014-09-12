@@ -11,7 +11,10 @@ class CustomModelForm(ModelForm):
     def json_error(self,s='\n'):
         msg = []
         for k in self.errors.keys():
-            label = self.fields.get(k).label
+            try:
+                label = self.fields.get(k).label
+            except:
+                label = ''
             error = u"、".join(self.errors.get(k))
             msg.append(u'%s : %s'%(label,error))
         return s.join(msg)

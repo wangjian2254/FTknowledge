@@ -54,6 +54,9 @@ urlpatterns = patterns('taxcreate',
                        url(r'^getGuan$', 'view_guan.getGuan'),
                        url(r'^getGuanData', 'view_guan.getGuanData'),
 
+                       url(r'^getPaperListData', 'view_guan.getPaperListData'),
+                       url(r'^getGuanById', 'view_guan.getGuanById'),
+
                        #科目管理
                        url(r'^updateKjkmKind', 'view_kjkm.updateKJKMKind'),
                        url(r'^updateKJKM', 'view_kjkm.updateKJKM'),

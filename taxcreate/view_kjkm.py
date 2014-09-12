@@ -2,6 +2,7 @@
 # Date:2014/8/6
 #Email:wangjian2254@gmail.com
 import json
+from FTknowledge.settings import STATIC_URL, STATIC_ROOT
 from knowledge.models import KJKM
 from taxcreate.forms import KMForm, KMKindForm
 from taxcreate.models import KM, KMKind
@@ -89,7 +90,7 @@ def updateKJKMKind(request):
     kind = kindForm.save()
     # l=[]
     if not pk:
-        k = json.load(open("kjkm.json"))
+        k = json.load(open("%skjkm.json"%STATIC_ROOT))
         for oldkm in k:
             try:
                 # l.append({'kmbh':km.name.split(":")[0],'name':km.name.split(":")[1]})
@@ -111,7 +112,7 @@ def exportKJKM(request):
 
         for oldkm in KM.objects.filter(kind=kind):
             l.append({"kmbh":oldkm.kmbh,"name":oldkm.name})
-        f=open("kjkm.json","w")
+        f=open("%skjkm.json"%STATIC_ROOT,"w")
         f.write(json.dumps(l))
         f.close()
     return getResult(True, u'保存会计科目信息成功')

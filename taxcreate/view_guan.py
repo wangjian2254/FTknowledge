@@ -138,10 +138,16 @@ def paper2js(paper, request):
     else:
         data = {}
         data['id'] = paper.pk
-        data['name'] = paper.guan.name
+        try:
+            data['name'] = paper.guan.name
+            data['point'] = paper.guan.point
+        except:
+            data['name'] = paper.title
+            data['point'] = 0
+            pass
         data['content'] = paper.content
         data['right_ztdm'] = paper.right_ztdm
-        data['point'] = paper.guan.point
+
         data['time'] = paper.time
         if paper.kmkind_id:
             data['kjkm'] = []
@@ -171,3 +177,32 @@ def paper2js(paper, request):
 
 
 
+
+def getPaperListData(request):
+    '''
+    根据关卡id，获取关卡的 js 数据
+    '''
+    paperlist = Paper.objects.filter(is_pub=True).order_by('-id')
+    return HttpResponse(paperlist2js(paperlist, request))
+
+
+def paperlist2js(paperlist, request):
+    js = "var paper = %s;"
+    if not paperlist:
+        return 'var paper=null;'
+    else:
+        data=[]
+        for paper in paperlist:
+            data.append({'id':paper.id,'title':paper.title})
+        return js % json.dumps(data)
+
+
+
+def getGuanById(request):
+    '''
+    根据关卡id，获取关卡的 js 数据
+    '''
+    id = request.REQUEST.get('id', '')
+    if id:
+        paper = Paper.objects.get(pk=id)
+        return HttpResponse(paper2js(paper, request))
