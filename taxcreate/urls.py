@@ -9,15 +9,21 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('taxcreate',
                        # Examples:
+                       url(r'^getTuZhangList', 'views.getTuZhangList'),
+                       url(r'^deleteTuZhang', 'views.deleteTuZhang'),
+                       url(r'^taxTuZhangUploaded', 'views.taxTuZhangUploaded'),
+
                        url(r'^showTaxImage', 'views.showTaxImage'),
                        url(r'^saveRuleItem', 'views.saveRuleItem'),
                        url(r'^copyRuleItem', 'views.copyRuleItem'),
                        url(r'^taxTemplateUploaded', 'views.taxTemplateUploaded'),
+                       url(r'^deleteTemplate', 'views.deleteTemplate'),
                        url(r'^getTemplateList', 'views.getTemplateList'),
                        url(r'^getRuleByTemplateList', 'views.getRuleByTemplateList'),
                        url(r'^getRuleItemByRuleList', 'views.getRuleItemByRuleList'),
                        url(r'^delRuleItemByids', 'views.delRuleItemByids'),
                        url(r'^saveRule', 'views.saveRule'),
+                       url(r'^deleteRule', 'views.deleteRule'),
                        url(r'^saveTemplate', 'views.saveTemplate'),
 
                        url(r'^updateSubject', 'view_subject.updateSubject'),
@@ -35,6 +41,8 @@ urlpatterns = patterns('taxcreate',
                        url(r'^updatePaper', 'view_shijuan.updatePaper'),
                        url(r'^getAllPaperUnGuan', 'view_shijuan.getAllPaperUnGuan'),
                        url(r'^getSubjectByPaper', 'view_shijuan.getSubjectByPaper'),
+                       url(r'^getPaperByKind', 'view_shijuan.getPaperByKind'),
+
                        url(r'^getPaper$', 'view_shijuan.getPaper'),
                        url(r'^getMyPaper', 'view_shijuan.getMyPaper'),
                        url(r'^answerPaper', 'view_shijuan.answerPaper'),

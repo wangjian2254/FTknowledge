@@ -4,24 +4,86 @@
 from django.http import HttpResponse
 from FTknowledge.settings import STATIC_ROOT
 from util.tools import getResult
-from taxcreate.models import TaxTemplate, TaxRule, RuleItem
+from taxcreate.models import TaxTemplate, TaxRule, RuleItem, TaxTuZhang
 
 __author__ = u'王健'
 
-
-def taxTemplateUploaded(request):
+def taxTuZhangUploaded(request):
     img = request.FILES.get('file','')
+    id = request.REQUEST.get('id','')
     name = request.REQUEST.get('name','')
     if img:
-        imginfo=TaxTemplate()
+        if id:
+            imginfo = TaxTuZhang.objects.get(pk=id)
+        else:
+            imginfo=TaxTuZhang()
+        if imginfo.img:
+            imginfo.img.delete()
         imginfo.img = img
         imginfo.name = name
-
         imginfo.save()
 
         return getResult(True,u'上传成功',{'imgurl':imginfo.img.url,'id':imginfo.pk,'name':imginfo.name})
     else:
         return getResult(False,'',None)
+
+
+def deleteTuZhang(request):
+    if not request.user.is_staff:
+        return getResult(False, '权限不足', None)
+    id = request.REQUEST.get('tuzhangid')
+    t = TaxTuZhang.objects.get(pk=id)
+    try:
+        if t.img:
+            t.img.delete()
+        t.delete()
+        return getResult(True, u'删除成功',None)
+    except Exception,e:
+        return getResult(False, '模板被使用，无法删除', None)
+
+
+
+def getTuZhangList(request):
+    l=[]
+    for t in TaxTuZhang.objects.all().order_by('id'):
+        l.append({'id':t.pk,'name':t.name,'imgurl':t.img.url})
+    return getResult(True,u'获取图章模板成功',l)
+
+
+
+def taxTemplateUploaded(request):
+    img = request.FILES.get('file','')
+    id = request.REQUEST.get('id','')
+    name = request.REQUEST.get('name','')
+    if img:
+        if id:
+            imginfo = TaxTemplate.objects.get(pk=id)
+        else:
+            imginfo=TaxTemplate()
+        if imginfo.img:
+            imginfo.img.delete()
+        imginfo.img = img
+        imginfo.name = name
+        imginfo.save()
+
+        return getResult(True,u'上传成功',{'imgurl':imginfo.img.url,'id':imginfo.pk,'name':imginfo.name})
+    else:
+        return getResult(False,'',None)
+
+
+def deleteTemplate(request):
+    if not request.user.is_staff:
+        return getResult(False, '权限不足', None)
+    id = request.REQUEST.get('templateid')
+    t = TaxTemplate.objects.get(pk=id)
+    try:
+        if t.img:
+            t.img.delete()
+        t.delete()
+        return getResult(True, u'删除成功',None)
+    except Exception,e:
+        return getResult(False, '模板被使用，无法删除', None)
+
 
 def saveRule(request):
     templateid = request.REQUEST.get('templateid','')
@@ -35,6 +97,16 @@ def saveRule(request):
     rule.taxtemplate = TaxTemplate.objects.get(pk=templateid)
     rule.save()
     return getResult(True,u'保存规则成功',{'id':rule.pk,'templateid':rule.taxtemplate_id,'name':rule.name})
+
+
+def deleteRule(request):
+    ruleid = request.REQUEST.get('ruleid')
+    rule = TaxRule.objects.get(pk=ruleid)
+    try:
+        rule.delete()
+        return getResult(True, u'删除成功',None)
+    except Exception,e:
+        return getResult(False, '规则被使用，无法删除', None)
 
 
 def saveTemplate(request):
@@ -65,17 +137,30 @@ def saveRuleItem(request):
             color = request.REQUEST.get('color%s'%i)
             family = request.REQUEST.get('family%s'%i)
             word = request.REQUEST.get('word%s'%i)
+            tuzhang_id = request.REQUEST.get('tuzhang%s'%i)
             if id:
                 ruleitem = RuleItem.objects.get(pk=id)
             else:
                 ruleitem = RuleItem()
+            if tuzhang_id:
+                ruleitem.size = 0
+                ruleitem.family = 1
+                tuzhang, c = TaxTuZhang.objects.get_or_create(pk=tuzhang_id)
+                if not c:
+                    ruleitem.tuzhang = tuzhang
+                else:
+                    ruleitem.tuzhang = None
+            else:
+                ruleitem.tuzhang = None
+                ruleitem.size = int(size)
+                ruleitem.family = int(family)
             ruleitem.rule=rule
             ruleitem.index = int(index)
             ruleitem.x = int(x)
             ruleitem.y = int(y)
-            ruleitem.size = int(size)
+
             ruleitem.color = int(color)
-            ruleitem.family = int(family)
+
             ruleitem.word = word
             ruleitem.save()
             ids.append(ruleitem.pk)
@@ -96,6 +181,7 @@ def copyRuleItem(request):
         for ruleitem in rule.ruleitem_set.all():
             ri = RuleItem()
             ri.rule = newrule
+            ri.tuzhang = ruleitem.tuzhang
             ri.index = ruleitem.index
             ri.x =ruleitem.x
             ri.y = ruleitem.y
@@ -124,7 +210,7 @@ def getRuleItemByRuleList(request):
     tempid = request.REQUEST.get('ruleid','')
     l=[]
     for t in RuleItem.objects.filter(rule=tempid).order_by('index'):
-        l.append({'id':t.pk,'ruleid':t.rule_id,'index':t.index,'x':t.x,'y':t.y,'size':t.size,'color':t.color,'family':t.family,'word':t.word})
+        l.append({'id':t.pk,'ruleid':t.rule_id,'index':t.index,'x':t.x,'y':t.y,'size':t.size,'color':t.color,'family':t.family,'word':t.word, 'tuzhang': t.tuzhang_id})
 
     return getResult(True,u'获取规则细则成功',l)
 
@@ -154,12 +240,16 @@ def showTaxImage(request):
                 d.text((0,y),'%s'%y,(0,0,0),font=f)
 
         for r in RuleItem.objects.filter(rule=rule).order_by('index'):
-            font = ImageFont.truetype('%smsyh.ttf'%STATIC_ROOT,r.size)
-            c =('%06x'%r.color)
-            cr = int(c[-6:-4],16)
-            cg = int(c[-4:-2],16)
-            cb = int(c[-2:],16)
-            d.text((r.x,r.y),r.word,(cr,cg,cb),font=font)
+            if not r.tuzhang:
+                font = ImageFont.truetype('%smsyh.ttf'%STATIC_ROOT,r.size)
+                c =('%06x'%r.color)
+                cr = int(c[-6:-4],16)
+                cg = int(c[-4:-2],16)
+                cb = int(c[-2:],16)
+                d.text((r.x,r.y),r.word,(cr,cg,cb),font=font)
+            else:
+                mark_img = Image.open(r.tuzhang.img.path)
+                tempimg.paste(mark_img,(r.x,r.y), mark_img.convert('RGBA'))
         response = HttpResponse(mimetype="image/jpg")
         tempimg.save(response, "JPEG")
         return response

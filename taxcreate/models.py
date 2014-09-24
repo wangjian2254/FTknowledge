@@ -9,6 +9,16 @@ from django.db import models
 
 # Create your models here.
 
+class TaxTuZhang(ModelWithHistory):
+    name = models.CharField(max_length=50, unique=True, verbose_name=u'图章名字', help_text=u'图章名字')
+    img = models.ImageField(upload_to='tuzhang/', verbose_name=u'图章图片')
+
+
+    def __unicode__(self):
+        return u'%s' % (self.name,)
+
+
+
 class TaxTemplate(ModelWithHistory):
     name = models.CharField(max_length=50, unique=True, verbose_name=u'票据模板', help_text=u'票据模板名称')
     img = models.ImageField(upload_to='tax/', verbose_name=u'票据模板位置')
@@ -51,6 +61,7 @@ class RuleItem(ModelWithHistory):
     color = models.IntegerField(verbose_name=u'字体颜色')
     family = models.IntegerField(verbose_name=u'字体类型')
     word = models.CharField(max_length=200, verbose_name=u'文字')
+    tuzhang = models.ForeignKey(TaxTuZhang, null=True, blank=True, verbose_name=u'图章位置')
 
 
     def __unicode__(self):
@@ -97,7 +108,7 @@ class Paper(ModelWithHistory):
     flag = models.CharField(max_length=50, blank=True, null=True, verbose_name=u'标记', help_text=u'录入者的标记')
     author = models.ForeignKey(User, blank=True, null=True, verbose_name=u'作者')
     content = models.TextField(verbose_name=u'内容', help_text=u'考卷描述', blank=True, null=True)
-    subjects = models.ManyToManyField("Subject", null=True, blank=True, verbose_name=u'试题')
+    subjects = models.ManyToManyField("Subject", through='PaperSubject', null=True, blank=True, verbose_name=u'试题')
     right_ztdm = models.CharField(max_length=200, null=True, blank=True, verbose_name=u'标准答案账套', help_text=u'标准答案账套id')
     is_pub = models.BooleanField(choices=choices, default=True, verbose_name=u'是否发布', help_text=u'发布后不可修改')
     guan = models.ForeignKey(Guan, verbose_name=u'隶属关卡', help_text=u'隶属的关卡', null=True, blank=True)
@@ -115,6 +126,15 @@ class Paper(ModelWithHistory):
         model = True
         fields = ('title', 'content', 'subjects', 'right_ztdm', 'is_pub', 'guan', 'time')
 
+
+class PaperSubject(models.Model):
+    paper = models.ForeignKey(Paper)
+    subject = models.ForeignKey('Subject')
+    class Meta:
+        db_table = 'taxcreate_paper_subjects'
+        ordering = ('id',)
+        pass
+        # ordering = ('id')
 
 class PaperResult(ModelWithHistory):
     """

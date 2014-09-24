@@ -13,10 +13,10 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'taxknowledge2',                      # Or path to database file if using sqlite3.
+        'NAME': 'taxknowledge',                      # Or path to database file if using sqlite3.
         'USER': 'root',                      # Not used with sqlite3.
         'PASSWORD': 'htfsdb',                  # Not used with sqlite3.
-        'HOST': '192.168.101.4',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': '192.168.1.7',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
         'ATOMIC_REQUEST': True,
     }

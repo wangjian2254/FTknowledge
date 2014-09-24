@@ -46,6 +46,7 @@ def menu(request):
 
                     <menu mod='myMenu3' label='票据生成'>
                         <menuitem label='票据定义' mod='taximagecreate'></menuitem>
+                        <menuitem label='图章定义' mod='tuzhang'></menuitem>
                     </menu>
                     <menu mod='myMenu3' label='考试'>
                         <menuitem label='关卡管理' mod='guanqia'></menuitem>

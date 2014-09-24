@@ -157,7 +157,7 @@ def paper2js(paper, request):
         if not data['time']:
             data['time'] = 1
         data['subject'] = []
-        for i, s in enumerate(paper.subjects.all()):
+        for i, s in enumerate(paper.subjects.order_by('papersubject')):
             subject = {'sid': s.id, 'title': s.title, 'bz': s.bz, 'type': s.type, 'imgurl': [], 'option': []}
             if s.type == 2:
                 try:
