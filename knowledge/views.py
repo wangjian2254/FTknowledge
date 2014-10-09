@@ -13,7 +13,7 @@ from models import Group, TaxKind, TaxTicket, BBField, BB, KJKMTicket, KJKM, BBF
 
 
 def index(request):
-    url = 'http://' + request.META['HTTP_HOST'] + '/static/swf/'
+    url = '/static/swf/'
     return render_to_response('index.html', {'url': url, 'p': datetime.datetime.now()})
 
 

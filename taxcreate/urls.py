@@ -12,6 +12,7 @@ urlpatterns = patterns('taxcreate',
                        url(r'^getTuZhangList', 'views.getTuZhangList'),
                        url(r'^deleteTuZhang', 'views.deleteTuZhang'),
                        url(r'^taxTuZhangUploaded', 'views.taxTuZhangUploaded'),
+                       url(r'^saveTuZhang', 'views.saveTuZhang'),
 
                        url(r'^showTaxImage', 'views.showTaxImage'),
                        url(r'^saveRuleItem', 'views.saveRuleItem'),
