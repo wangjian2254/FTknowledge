@@ -131,6 +131,7 @@ INSTALLED_APPS = (
     'knowledge',
     'taxcreate',
     'model_history',
+    'weixin',
 )
 
 # A sample logging configuration. The only tangible logging

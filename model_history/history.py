@@ -166,7 +166,7 @@ class ModelWithHistory(models.Model):
             return
         history.change_message = '\n'.join(l)
         try:
-            history.object_repr = unicode(self)
+            history.object_repr = unicode(self)[:200]
         except Exception:
             history.object_repr = "(unknown)"
 

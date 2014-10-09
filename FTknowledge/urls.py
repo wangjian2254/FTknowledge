@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'^ft/', include('knowledge.urls')),
     url(r'^tax/', include('taxcreate.urls')),
     url(r'^log/', include('model_history.urls')),
+    url(r'^weixin/', include('weixin.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
