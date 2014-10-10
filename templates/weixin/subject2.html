@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/><!--让设备一比一显示网页-->
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css"/>
+<script type="text/javascript" src="/static/js/jquery.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<script language="javascript">
+    function addMessage(){
+         var $ul = $("#con ul");
+        var liHeight = $ul.find("li:last").height();
+        $ul.animate({marginTop : liHeight+40 +"px"},1000,function(){
+
+        $ul.find("li:last").prependTo($ul)
+        $ul.find("li:first").hide();
+        $ul.css({marginTop:0});
+        $ul.find("li:first").fadeIn(1000);
+        });
+    }
+$(function(){
+        var scrtime;
+        var param={'limit':{{limit}}};
+         $("#con").hover(function(){
+                clearInterval(scrtime);
+         
+        },function(){
+         
+        scrtime = setInterval(function(){
+            $.post("/weixin/get_new_weixinmessage",param,function(response,status){
+                if(status == 'success'){
+                    if(response.success && response.result){
+                        var m=null;
+                        for(var i=0;i<response.result.length;i++){
+                            m = response.result[i];
+                            if(param['last_id'] == undefined || m.id > param['last_id']){
+                                param['last_id'] = m.id;
+                            }
+                            $('#messagelist').append('<li><div><p class="vright">'+ m.content+'</p></div></li>')
+                            addMessage();
+                        }
+                    }
+
+                }
+
+
+
+            },'json');
+
+        },1000*{{ time }});
+         
+        }).trigger("mouseleave");
+         
+         
+});
+</script>
+<style type="text/css">
+body{
+    	background:#277dca url(/static/image/bg.jpg) no-repeat left top;
+}
+    .content{
+        	background:url(/static/image/content.png) no-repeat left top;
+    }
+ </style>
+</head>
+<body>
+
+<!-- the  content-->
+<div class="box_max">
+	<div class="header">
+    	<div class="title">
+        </div>
+
+        <div class="tiaoma">
+        	<img src="/static/image/qrcode_for_gh_dfa1f8bcee19_430.jpg" width="132" height="132">
+        </div>
+    </div>
+
+    <div class="content">
+    	<div id="con">
+          <ul id="messagelist">
+            <li>
+
+                <div>
+                	<h3>昵称昵称昵称：</h3>
+                	<p class="vright">1</p>
+                </div>
+            </li>
+            <li>
+
+                <div>
+                	<h3>昵称昵称昵称：</h3>
+                	<p class="vright">2</p>
+                </div>
+            </li>
+            <li>
+
+                 <div>
+                	<h3>昵称昵称昵称：</h3>
+                	<p class="vright">3</p>
+                </div>
+            </li>
+            <li>
+
+                 <div>
+                	<h3>昵称昵称昵称：</h3>
+                	<p class="vright">4</p>
+                </div>
+            </li>
+              <li>
+
+                 <div>
+                	<h3>昵称昵称昵称：</h3>
+                	<p class="vright">5</p>
+                </div>
+            </li>
+
+          </ul>
+        </div>
+
+    </div>
+</div>
+<!-- the  content-->
+
+</body>
+</html>

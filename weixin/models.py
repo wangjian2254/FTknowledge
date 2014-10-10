@@ -34,7 +34,7 @@ class WeiXinMessage(models.Model):
     content = models.CharField(max_length=100, null=True, blank=True,  db_index=True, verbose_name=u'微信内容')
     imgurl = models.URLField(null=True, blank=True, verbose_name=u'微信图片')
     create_time = models.DateTimeField(default=datetime.datetime.now, verbose_name=u'发送信息的时间')
-    code = models.IntegerField(unique=True, db_index=True, verbose_name=u'活动标记')
+    code = models.IntegerField(db_index=True, null=True, blank=True, verbose_name=u'活动标记')
     is_check = models.NullBooleanField(default=None, verbose_name=u'客户发言是否经过审核')
 
     def __unicode__(self):

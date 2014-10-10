@@ -1,0 +1,118 @@
+﻿@charset "utf-8";
+
+/* CSS Document */
+*{
+	margin:0px;
+	padding:0px;	
+	font-size:12px;
+}
+
+a{
+	text-decoration:none;	
+}
+
+li{
+	list-style-type:none;
+}
+
+input,label{vertical-align:middle;}
+
+.title h3{
+	font-size:14px;	
+}
+
+img{
+	max-width:100%;	
+	border:0;
+	font-size:12px;
+}
+
+html{
+	overflow:hidden;	
+}
+
+body{	
+
+	text-align:center;
+	overflow-x:hidden
+}
+
+.box_max{
+	width:908px;
+	height:730px;
+	margin-left:auto;
+	margin-right:auto;
+	overflow:hidden;	
+}
+
+.header{
+	width:908px;
+	height:187px;	
+	overflow:hidden;
+}
+
+
+.content{
+	width:908px;	
+	height:543px;
+	overflow:hidden;
+	text-align:left;
+}
+
+.title{
+	float:left;
+	height:187px;
+	width:752px;
+
+}
+
+.tiaoma{
+	float:left;
+	height:132px;
+	width:132px;
+	margin-top:33px;	
+}
+
+#con{
+	width:880px;
+	margin-left:14px;
+	margin-top:16px;	
+}
+
+#con li{
+	background:#fff;
+	height:116px;
+	margin-bottom:14px;	
+	border-bottom:#e5e5e5 2px solid;
+}
+
+#con li img{
+	width:78px;
+	height:78px;
+	margin-top:21px;
+	margin-left:21px;
+	float:left;
+}
+
+#con li div{
+	margin-left:21px;
+	float:left;
+	margin-top:15px;
+	width:725px;
+	overflow:hidden;	
+}
+
+#con li h3{
+	color:#1c72cd;
+	font-size:16px;	
+	line-height:30px;
+}
+
+#con li p{
+	font-size:14px;
+	color:#666;	
+	line-height:20px;
+}
+
+
+

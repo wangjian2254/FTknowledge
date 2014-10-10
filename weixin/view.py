@@ -69,12 +69,14 @@ def responseMsg(request):
         return eventMsg(msg, person)
     else:
         weixinmsg, created = WeiXinMessage.objects.get_or_create(messageid=msgid)
-        if created:
+        if created and content:
             weixinmsg.content = content
             weixinmsg.imgurl = picurl
             weixinmsg.weixinuser = person
+            if person.current_subject_code:
+                weixinmsg.code = person.current_subject_code
             weixinmsg.save()
-        return ''
+        result_msg = u'您发的信息已被记录'
     return getReplyXml(msg, result_msg.encode('utf-8'))
 
 
@@ -138,6 +140,8 @@ def join_subject(code, person):
     if created:
         return u'参与的活动存在或已经结束'
     if subject.status:
+        person.current_subject_code = int(code)
+        person.save()
         subject.weixinusers.add(person)
         return u'欢迎参与：%s' % subject.name
     else:

@@ -10,6 +10,8 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns('weixin',
                        # Examples:
                        url(r'^weixinapi', 'view.handleRequest'),
+                       url(r'^subjecthtml', 'views_qiang.subjecthtml'),
+                       url(r'^get_new_weixinmessage', 'views_qiang.get_new_weixinmessage'),
 
 
 )
