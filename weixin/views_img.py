@@ -2,6 +2,7 @@
 #author:u'王健'
 #Date: 14-10-12
 #Time: 下午3:42
+import os
 from FTknowledge.settings import MEDIA_ROOT, BASE_DIR
 
 __author__ = u'王健'
@@ -80,11 +81,25 @@ def responseMsg(request):
     # return getReplyXml(msg, result_msg.encode('utf-8'))
     if picurl:
         imgpath = downloadIDimage(picurl)
-        result_msg = shibie(imgpath)
-        return getReplyXmlImg(msg, result_msg.encode('utf-8'), picurl)
-    else:
+        status, result_msg = shibie(imgpath)
+        if status == 1:
+            name = u''
+            number = u''
+            address = u''
+            for line in result_msg.split():
+                if line.find(u'Name') >= 0:
+                    name = line.split(u'"')[1]
+                if line.find(u'CardNo') >= 0:
+                    number = line.split(u'"')[1]
+                if line.find(u'Address') >= 0:
+                    address = line.split(u'"')[1]
+            result_msg = u'姓名:%s\n身份证号:%s\n地址:%s\n' % (name, number, address)
+            return getReplyXmlImg(msg, result_msg.encode('utf-8'), picurl)
+        else:
+            result_msg = u'识别失败'
 
-        return getReplyXml(msg, result_msg.encode('utf-8'))
+
+    return getReplyXml(msg, result_msg.encode('utf-8'))
 
 
 def paraseMsgXml(rootElem):
@@ -139,7 +154,7 @@ def downloadIDimage(url):
         f = urllib2.urlopen(url)
         data = f.read()
         filename = str(uuid.uuid4())
-        imgpath = "%s/%s" % (os.path.join(MEDIA_ROOT, "idimg"), filename)
+        imgpath = "%s/%s.jpg" % (os.path.join(MEDIA_ROOT, "idimg"), filename)
         with open(imgpath, "wb") as code:
             code.write(data)
 
@@ -159,7 +174,7 @@ def shibie(imgpath):
 
 
     num = IdentityDllMain(ocrdatapath, ocrconfigpath, imgpath, resBuffer, 1024)
-
-    print num
+    os.remove(imgpath)
+    # print num
     resBuffer = resBuffer.decode('gb2312')
-    return resBuffer
+    return num,resBuffer
