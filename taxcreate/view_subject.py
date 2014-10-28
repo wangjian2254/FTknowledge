@@ -147,9 +147,13 @@ def getSubjectById(request):
 
 
 def delSubject(request):
+    if not request.user.is_staff:
+        return getResult(False, u'权限不足', None)
     id = request.REQUEST.get('id', '')
     if id:
         kind = Subject.objects.get(pk=id)
+        if kind.paper_set.exists():
+            return getResult(False, u'考题被使用无法删除', None)
         kind.delete()
     else:
         return getResult(False, u'考题不存在', None)
