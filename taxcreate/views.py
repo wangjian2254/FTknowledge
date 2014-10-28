@@ -33,11 +33,11 @@ def deleteTuZhang(request):
     if not request.user.is_staff:
         return getResult(False, u'权限不足', None)
     id = request.REQUEST.get('tuzhangid')
-    t, c = TaxTuZhang.objects.get_or_create(pk=id)
     try:
-        if c:
+        if not TaxTuZhang.objects.filter(pk=id):
             raise 'err'
-        if not t.taxrule_set.exists():
+        t = TaxTuZhang.objects.get(pk=id)
+        if not t.ruleitem_set.exists():
             if t.img:
                 t.img.delete()
             t.delete()
@@ -51,7 +51,8 @@ def deleteTuZhang(request):
 def getTuZhangList(request):
     l = []
     for t in TaxTuZhang.objects.all().order_by('id'):
-        l.append({'id': t.pk, 'name': t.name, 'imgurl': t.img.url})
+        if t.img:
+            l.append({'id': t.pk, 'name': t.name, 'imgurl': t.img.url})
     return getResult(True, u'获取图章模板成功', l)
 
 
@@ -170,11 +171,8 @@ def saveRuleItem(request):
             if tuzhang_id:
                 ruleitem.size = 0
                 ruleitem.family = 1
-                tuzhang, c = TaxTuZhang.objects.get_or_create(pk=tuzhang_id)
-                if not c:
-                    ruleitem.tuzhang = tuzhang
-                else:
-                    ruleitem.tuzhang = None
+                tuzhang = TaxTuZhang.objects.get(pk=tuzhang_id)
+                ruleitem.tuzhang = tuzhang
             else:
                 ruleitem.tuzhang = None
                 ruleitem.size = int(size)
@@ -256,33 +254,31 @@ def showTaxImage(request):
 
     ruleid = request.REQUEST.get('ruleid', '')
     flag = request.REQUEST.get('flag', '0')
-    rule, c = TaxRule.objects.get_or_create(pk=ruleid)
-    if not c:
-        temp = rule.taxtemplate
-        tempimg = Image.open(temp.img.path)
-        d = ImageDraw.Draw(tempimg)
-        if flag == '1':
-            w, h = tempimg.size
-            f = ImageFont.truetype('msyh.ttf', 15)
-            for x in range(50, w, 50):
-                d.line([(x, 0), (x, h)], 0, 2)
-                d.text((x, 0), '%s' % x, (0, 0, 0), font=f)
-            for y in range(50, h, 50):
-                d.line([(0, y), (w, y)], 0, 2)
-                d.text((0, y), '%s' % y, (0, 0, 0), font=f)
+    rule = TaxRule.objects.get(pk=ruleid)
+    temp = rule.taxtemplate
+    tempimg = Image.open(temp.img.path)
+    d = ImageDraw.Draw(tempimg)
+    if flag == '1':
+        w, h = tempimg.size
+        f = ImageFont.truetype('msyh.ttf', 15)
+        for x in range(50, w, 50):
+            d.line([(x, 0), (x, h)], 0, 2)
+            d.text((x, 0), '%s' % x, (0, 0, 0), font=f)
+        for y in range(50, h, 50):
+            d.line([(0, y), (w, y)], 0, 2)
+            d.text((0, y), '%s' % y, (0, 0, 0), font=f)
 
-        for r in RuleItem.objects.filter(rule=rule).order_by('index'):
-            if not r.tuzhang:
-                font = ImageFont.truetype('%smsyh.ttf' % STATIC_ROOT, r.size)
-                c = ('%06x' % r.color)
-                cr = int(c[-6:-4], 16)
-                cg = int(c[-4:-2], 16)
-                cb = int(c[-2:], 16)
-                d.text((r.x, r.y), r.word, (cr, cg, cb), font=font)
-            else:
-                mark_img = Image.open(r.tuzhang.img.path)
-                tempimg.paste(mark_img, (r.x, r.y), mark_img.convert('RGBA'))
-        response = HttpResponse(mimetype="image/jpg")
-        tempimg.save(response, "JPEG")
-        return response
-    return HttpResponse('', mimetype="image/jpg")
+    for r in RuleItem.objects.filter(rule=rule).order_by('index'):
+        if not r.tuzhang:
+            font = ImageFont.truetype('%smsyh.ttf' % STATIC_ROOT, r.size)
+            c = ('%06x' % r.color)
+            cr = int(c[-6:-4], 16)
+            cg = int(c[-4:-2], 16)
+            cb = int(c[-2:], 16)
+            d.text((r.x, r.y), r.word, (cr, cg, cb), font=font)
+        else:
+            mark_img = Image.open(r.tuzhang.img.path)
+            tempimg.paste(mark_img, (r.x, r.y), mark_img.convert('RGBA'))
+    response = HttpResponse(mimetype="image/jpg")
+    tempimg.save(response, "JPEG")
+    return response

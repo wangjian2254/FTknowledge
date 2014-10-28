@@ -162,6 +162,7 @@ def paper2js(paper, request):
             if s.type == 2:
                 try:
                     pz = PZ.objects.filter(subject=s)[0]
+                    subject['ts'] = pz.desc
                     subject['fl'] = []
                     for fl in pz.fl_set.all():
                         subject['fl'].append({"fx": fl.fx, 'num': float(fl.num), 'kjkm': fl.kmmc_id, 'zy': fl.zy})
