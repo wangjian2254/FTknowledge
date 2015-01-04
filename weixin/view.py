@@ -68,7 +68,7 @@ def responseMsg(request):
     if msgtype == 'event':
         return eventMsg(msg, person)
     else:
-        weixinmsg, created = WeiXinMessage.objects.get_or_create(messageid=msgid)
+        weixinmsg, created = WeiXinMessage.objects.get_or_create(messageid=msgid, weixinuser=person)
         if created and content:
             weixinmsg.content = content
             weixinmsg.imgurl = picurl

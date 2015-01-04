@@ -34,7 +34,7 @@ def deleteTuZhang(request):
         return getResult(False, u'权限不足', None)
     id = request.REQUEST.get('tuzhangid')
     try:
-        if not TaxTuZhang.objects.filter(pk=id):
+        if not TaxTuZhang.objects.filter(pk=id).exists():
             raise 'err'
         t = TaxTuZhang.objects.get(pk=id)
         if not t.ruleitem_set.exists():

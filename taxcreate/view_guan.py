@@ -151,7 +151,7 @@ def paper2js(paper, request):
         data['time'] = paper.time
         if paper.kmkind_id:
             data['kjkm'] = []
-            for km in paper.kmkind.km_set.all():
+            for km in paper.kmkind.km_set.all().order_by('kmbh'):
                 data['kjkm'].append({"id": km.pk, 'name': '%s:%s' % (km.kmbh, km.name)})
             data['kjkm']=json.dumps(data['kjkm'])
         if not data['time']:

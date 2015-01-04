@@ -22,7 +22,7 @@ def get_new_weixinmessage(request):
     limit = request.REQUEST.get('limit', '1')
     if not last_id:
         t = datetime.datetime.now()
-        last_day = datetime.datetime(t.year, t.month, t.day - 1)
+        last_day = datetime.datetime(t.year, t.month, t.day)
     messagequery = WeiXinMessage.objects
     if subjectcode:
         subject, c = Subject.objects.get_or_create(code=int(subjectcode))

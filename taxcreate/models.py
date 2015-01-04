@@ -282,7 +282,7 @@ class FL(ModelWithHistory):
                              help_text=u'分录科目名称')
     # zy = models.CharField(max_length=100, db_index=True, blank=True, null=True, verbose_name=u'摘要')
     fx = models.BooleanField(default=True, choices=FX, verbose_name=u'方向', help_text=u'借正贷负')
-    num = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    num = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     zy = models.TextField(blank=True, null=True, verbose_name=u'摘要')
     # desc = models.CharField(max_length=1000,  blank=True, null=True, verbose_name=u'凭证备注')
     class Meta():
@@ -295,3 +295,4 @@ class FL(ModelWithHistory):
     class History:
         model = True
         fields = ('pz', 'kmmc', 'fx', 'num', 'zy')
+
