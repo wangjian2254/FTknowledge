@@ -5,97 +5,97 @@ from django.db import models
 # Create your models here.
 from model_history.history import ModelWithHistory
 
+#
+# class Group(ModelWithHistory):
+#     name = models.CharField(max_length=50, unique=True, verbose_name=u'服务行业', help_text=u'会计服务行业')
+#     is_active = models.BooleanField(default=True, verbose_name=u'可用')
+#     class Meta():
+#         verbose_name=u'票据分组'
+#         verbose_name_plural=u'票据分组列表'
+#     def __unicode__(self):
+#         return u'%s'%(self.name,)
+#
+#     class History:
+#         model = True
+#         fields = ('name', 'is_active')
 
-class Group(ModelWithHistory):
-    name = models.CharField(max_length=50, unique=True, verbose_name=u'服务行业', help_text=u'会计服务行业')
-    is_active = models.BooleanField(default=True, verbose_name=u'可用')
-    class Meta():
-        verbose_name=u'票据分组'
-        verbose_name_plural=u'票据分组列表'
-    def __unicode__(self):
-        return u'%s'%(self.name,)
-
-    class History:
-        model = True
-        fields = ('name', 'is_active')
-
-
-class TaxKind(ModelWithHistory):
-    name = models.CharField(max_length=100, verbose_name=u'分类名称', help_text=u'多级分类')
-    fatherKind = models.ForeignKey('TaxKind', blank=True, null=True, verbose_name=u'父类', help_text=u'多级分类')
-    is_active = models.BooleanField(default=True, verbose_name=u'可用')
-    class Meta():
-        verbose_name=u'票据分类'
-        verbose_name_plural=u'票据分类列表'
-    def __unicode__(self):
-        return u'%s' % (self.name,)
-    class Meta():
-        unique_together =(('name','fatherKind'),)
-
-    class History:
-        model = True
-        fields = ('name', 'fatherKind','is_active')
-
-
-
-class TaxTicket(ModelWithHistory):
-
-    name = models.CharField(max_length=1000, verbose_name=u'票据名称')
-    group = models.ForeignKey(Group)
-    taxkind = models.ForeignKey(TaxKind)
-    class Meta():
-        verbose_name=u'票据'
-        verbose_name_plural=u'票据列表'
-    def __unicode__(self):
-        return u'%s' % (self.name,)
-    class History:
-        model = True
-        fields = ('name', 'group','taxkind')
+#
+# class TaxKind(ModelWithHistory):
+#     name = models.CharField(max_length=100, verbose_name=u'分类名称', help_text=u'多级分类')
+#     fatherKind = models.ForeignKey('TaxKind', blank=True, null=True, verbose_name=u'父类', help_text=u'多级分类')
+#     is_active = models.BooleanField(default=True, verbose_name=u'可用')
+#     class Meta():
+#         verbose_name=u'票据分类'
+#         verbose_name_plural=u'票据分类列表'
+#     def __unicode__(self):
+#         return u'%s' % (self.name,)
+#     class Meta():
+#         unique_together =(('name','fatherKind'),)
+#
+#     class History:
+#         model = True
+#         fields = ('name', 'fatherKind','is_active')
 
 
-class KJKM(ModelWithHistory):
-    name = models.CharField(max_length=100,db_index=True,verbose_name=u'会计科目名称')
-    def __unicode__(self):
-        return u'%s' % (self.name,)
-    class Meta():
-        verbose_name=u'会计科目'
-        verbose_name_plural=u'会计科目列表'
-    class History:
-        model = True
-        fields = ('name')
+#
+# class TaxTicket(ModelWithHistory):
+#
+#     name = models.CharField(max_length=1000, verbose_name=u'票据名称')
+#     group = models.ForeignKey(Group)
+#     taxkind = models.ForeignKey(TaxKind)
+#     class Meta():
+#         verbose_name=u'票据'
+#         verbose_name_plural=u'票据列表'
+#     def __unicode__(self):
+#         return u'%s' % (self.name,)
+#     class History:
+#         model = True
+#         fields = ('name', 'group','taxkind')
 
-class KJKMTicket(ModelWithHistory):
-    kjkm = models.ForeignKey(KJKM,verbose_name=u'会计科目')
-    tickets = models.ForeignKey(TaxTicket,verbose_name=u'关联票据')
-    class Meta():
-        verbose_name=u'会计科目关联票据'
-        verbose_name_plural=u'会计科目关联票据列表'
-    def __unicode__(self):
-        return u'%s_%s' % (self.kjkm.name,self.tickets.name)
-    class History:
-        model = True
-        fields = ('kjkm', 'tickets')
-
-class BB(models.Model):
-    name = models.CharField(max_length=20,db_index=True,verbose_name=u'报表名称')
-
-
-
-class BBField(models.Model):
-    bb = models.ForeignKey(BB,verbose_name=u'隶属报表')
-    fieldname = models.CharField(max_length=20,verbose_name=u'字段名称')
-
-
-
-class BBFieldValue(models.Model):
-    kjkmticket = models.ForeignKey(KJKMTicket,verbose_name=u'会计科目票据')
-    bbfield = models.ForeignKey(BBField,verbose_name=u'对应表字段')
-    value = models.CharField(max_length=200,verbose_name=u'字段对应值')
-
-
-    class Meta():
-        unique_together =(('kjkmticket','bbfield'),)
-
+#
+# class KJKM(ModelWithHistory):
+#     name = models.CharField(max_length=100,db_index=True,verbose_name=u'会计科目名称')
+#     def __unicode__(self):
+#         return u'%s' % (self.name,)
+#     class Meta():
+#         verbose_name=u'会计科目'
+#         verbose_name_plural=u'会计科目列表'
+#     class History:
+#         model = True
+#         fields = ('name')
+#
+# class KJKMTicket(ModelWithHistory):
+#     kjkm = models.ForeignKey(KJKM,verbose_name=u'会计科目')
+#     tickets = models.ForeignKey(TaxTicket,verbose_name=u'关联票据')
+#     class Meta():
+#         verbose_name=u'会计科目关联票据'
+#         verbose_name_plural=u'会计科目关联票据列表'
+#     def __unicode__(self):
+#         return u'%s_%s' % (self.kjkm.name,self.tickets.name)
+#     class History:
+#         model = True
+#         fields = ('kjkm', 'tickets')
+#
+# class BB(models.Model):
+#     name = models.CharField(max_length=20,db_index=True,verbose_name=u'报表名称')
+#
+#
+#
+# class BBField(models.Model):
+#     bb = models.ForeignKey(BB,verbose_name=u'隶属报表')
+#     fieldname = models.CharField(max_length=20,verbose_name=u'字段名称')
+#
+#
+#
+# class BBFieldValue(models.Model):
+#     kjkmticket = models.ForeignKey(KJKMTicket,verbose_name=u'会计科目票据')
+#     bbfield = models.ForeignKey(BBField,verbose_name=u'对应表字段')
+#     value = models.CharField(max_length=200,verbose_name=u'字段对应值')
+#
+#
+#     class Meta():
+#         unique_together =(('kjkmticket','bbfield'),)
+#
 
 
 class PZ(ModelWithHistory):
@@ -137,14 +137,6 @@ class FL(ModelWithHistory):
         model = True
         fields = ('pz', 'kmmc','fx','num','zy')
 
-
-class Replay(models.Model):
-    replayId = models.IntegerField(verbose_name=u'主键', db_index=True)
-    replayType = models.CharField(max_length=20, db_index=True, verbose_name=u'提问实体')
-    user = models.ForeignKey(User)
-    content = models.CharField(max_length=1000,  verbose_name=u'内容')
-    is_first = models.BooleanField(default=True, db_index=True, verbose_name=u'是否第一条', help_text=u'由第一条来决定是否讨论结束')
-    is_close = models.BooleanField(default=False, db_index=True, verbose_name=u'是否结束')
 
 
 class ImageInfo(models.Model):

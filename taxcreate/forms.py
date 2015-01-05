@@ -3,7 +3,7 @@
 #Date: 14-5-21
 #Time: 上午8:00
 from django import forms
-from taxcreate.models import Paper, PaperResult, Subject, Option, Guan, PZ, KM, KMKind
+from taxcreate.models import Paper, Subject, Option, Guan, PZ, KM, KMKind
 from util.CustomForm import CustomModelForm
 
 __author__ = u'王健'
@@ -27,10 +27,6 @@ class GuanForm(CustomModelForm):
         fields = ('flag', 'name', 'point')
 
 
-class PaperResultForm(CustomModelForm):
-    class Meta:
-        model = PaperResult
-        fields = ('paper', 'user', 'editDate', 'result')
 
 
 class SubjectForm(CustomModelForm):

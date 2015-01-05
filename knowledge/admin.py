@@ -1,7 +1,7 @@
 #coding=utf-8
 #Date: 11-12-8
 #Time: 下午10:28
-from knowledge.models import Group, Relation, Rule, Ticket, Business, KM, KJZD, SF
+from knowledge.models import KM
 
 __author__ = u'王健'
 

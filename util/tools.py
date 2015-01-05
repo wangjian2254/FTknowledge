@@ -10,7 +10,6 @@ from django.core.cache import cache
 from django.utils import simplejson
 from django.db import models
 import sys
-from knowledge.models import Group
 
 __author__ = u'王健'
 
@@ -28,12 +27,12 @@ def getResult(success,message,result=None,status_code=200,cachename=None):
     return HttpResponse(jsonstr)
 
 
-def clearTicketCache(id=None):
-    if id:
-        cache.delete('taxkindstr%s' % id)
-    else:
-        for group in Group.objects.all():
-            cache.delete('taxkindstr%s' % group.pk)
+# def clearTicketCache(id=None):
+#     if id:
+#         cache.delete('taxkindstr%s' % id)
+#     else:
+#         for group in Group.objects.all():
+#             cache.delete('taxkindstr%s' % group.pk)
 
 
 class MyEncoder(simplejson.JSONEncoder):
