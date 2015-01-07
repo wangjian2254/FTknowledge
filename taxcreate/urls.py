@@ -70,4 +70,6 @@ urlpatterns = patterns('taxcreate',
                        url(r'^getAllKMLabelByKind', 'view_kjkm.getAllKMLabelByKind'),
                        url(r'^exportKJKM', 'view_kjkm.exportKJKM'),
 
+                       url(r'^tongji', 'views.tongji_tax'),
+
 )

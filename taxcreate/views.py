@@ -1,10 +1,10 @@
 # coding=utf-8
-#Date: 11-12-8
+# Date: 11-12-8
 #Time: 下午10:28
 from django.http import HttpResponse
 from FTknowledge.settings import STATIC_ROOT
 from util.tools import getResult
-from taxcreate.models import TaxTemplate, TaxRule, RuleItem, TaxTuZhang
+from taxcreate.models import TaxTemplate, TaxRule, RuleItem, TaxTuZhang, Subject, Guan, Paper
 
 __author__ = u'王健'
 
@@ -282,3 +282,17 @@ def showTaxImage(request):
     response = HttpResponse(mimetype="image/jpg")
     tempimg.save(response, "JPEG")
     return response
+
+
+def tongji_tax(request):
+    subjectcount = Subject.objects.filter(type=1).count()
+    pzsubjectcount = Subject.objects.filter(type=2).count()
+    templatecount = TaxTemplate.objects.count()
+    rulecount = TaxRule.objects.count()
+    tuzhangcount = TaxTuZhang.objects.count()
+
+    guancount = Guan.objects.count()
+    papercount = Paper.objects.count()
+
+    return HttpResponse(u'选择题试题数量：%s<br/>凭证题试题数量：%s<br/>所有试题数量：%s<br/>关卡数量：%s<br/>试卷数量：%s<br/>票据模板数量：%s<br/>规则数量：%s<br/>图章数量：%s<br/>' % (
+        subjectcount, pzsubjectcount, subjectcount + pzsubjectcount, guancount, papercount, templatecount, rulecount, tuzhangcount))
